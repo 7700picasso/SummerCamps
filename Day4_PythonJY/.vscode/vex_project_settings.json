@@ -1,0 +1,18 @@
+{
+	"extension": {
+		"version": "0.7.2025041600",
+		"json": 2
+	},
+	"project": {
+		"name": "Day4_PythonJY",
+		"description": "",
+		"creationDate": "6/26/2025, 1:07:42 PM",
+		"platform": "V5",
+		"language": "python",
+		"slot": 3,
+		"sdkVersion": "V5_1_0_1_25",
+		"python": {
+			"main": "src/main.py"
+		}
+	}
+}
