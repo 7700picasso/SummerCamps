@@ -19,23 +19,65 @@ competition Competition;
 
 // define your global instances of motors and other devices here
 brain Brain;
-motor LM =motor(PORT20,ratio18_1,false);
-motor RM =motor (PORT11,ratio18_1,true);
-motor intake = motor(PORT12,ratio18_1, true);
+motor LM =motor(PORT13,ratio18_1,true);
+motor RM =motor (PORT20,ratio18_1,false);
+motor intake = motor(PORT7,ratio18_1, true);
+motor LM2=motor(PORT14,ratio18_1,true);
+motor RM2=motor(PORT18, ratio18_1, false);
 controller Controller1;
 
+float dia=4.00;
+float pi=3.14;
 
 
-void drive (int lspeed, int rspeed, int wt){
+
+void drive (int lspeed, int rspeed, int wt){ 
   LM.spin(fwd,lspeed,pct);
   RM.spin(fwd,rspeed,pct);
+  LM2.spin(fwd,lspeed,pct);
+  RM2.spin(fwd, rspeed,pct);
   wait(wt,msec);
 }
 
 void stop(){
 LM.stop(brake);
 RM.stop(brake);
+LM2.stop(brake);
+RM2.stop(brake);
 }
+
+
+void inchdrive(float inches){
+  float x=0;
+  LM.resetPosition();
+  x=LM.position(rev)*dia*pi;
+  if (inches>0){
+
+  
+while (x <= inches){
+ drive(50,50,20);
+ x=LM.position(rev)*dia*pi;
+
+ Brain.Screen.printAt(50,10, "Distance=%0.2f",x);
+}}
+
+else if (inches <0){
+
+  
+while (x <= fabs(inches)){
+ drive(-50,-50,20);
+ x=-LM.position(rev)*dia*pi;
+
+ Brain.Screen.printAt(50,10, "Distance=%0.2f",x);
+}}
+
+
+ stop();
+
+}
+
+
+
 
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -65,23 +107,27 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void autonomous(void) {
-  drive(100, 100, 2500) ;
-  stop();
+void autonomous(void) 
+{
+  inchdrive(25);
   wait(1,sec);
-  drive(80,-80,200);
-
-
-
-
-
-
-
+  drive(50,-50,1555);
   stop();
+  
+}
+
+
+
+
+
+
+
+
+  
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
-}
+
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
@@ -93,7 +139,8 @@ void autonomous(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void usercontrol(void) {
+void usercontrol(void) 
+{
   // User control code here, inside the loop
 while (1) {
 int lstick=Controller1.Axis3.position();
