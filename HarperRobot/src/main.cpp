@@ -19,10 +19,10 @@ competition Competition;
 
 // define your global instances of motors and other devices here
 brain Brain;
-motor LM = motor(PORT6,ratio18_1,true);
-motor RM=motor(PORT16,ratio18_1,false);
-motor LM2 = motor(PORT9,ratio18_1,false);
-motor RM2 = motor(PORT3,ratio18_1,true);
+motor LM = motor(PORT14,ratio18_1,true);
+motor RM=motor(PORT8,ratio18_1,false);
+motor LM2 = motor(PORT12,ratio18_1,false);
+motor RM2 = motor(PORT16,ratio18_1,true);
 
 
 motor intake=motor(PORT1,ratio18_1,true);
@@ -74,11 +74,7 @@ stop();
 /*---------------------------------------------------------------------------*/
 
 void pre_auton(void) {
-  // Initializing Robot Configuration. DO NOT REMOVE!
   
-
-  // All activities that occur before the competition starts
-  // Example: clearing encoders, setting servo positions, ...
 }
 
 /*---------------------------------------------------------------------------*/
