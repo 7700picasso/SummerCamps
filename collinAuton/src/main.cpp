@@ -21,7 +21,7 @@ competition Competition;
 brain Brain;
 motor LM = motor(PORT1,ratio18_1,false);
 motor RM=motor(PORT10,ratio18_1,true);
-motor intake=motor(PORT11,ratio18_1,true);
+motor intake=motor(PORT13,ratio18_1,true);
 controller Controller1;
 float pi  = 3.14;
 float dia = 4.00;
@@ -70,7 +70,6 @@ void inchdrive( float inches) {
 
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
-  vexcodeInit();
 
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
@@ -87,12 +86,15 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-inchdrive(16);
-drive(50,-50,500)
-  // ..........................................................................
+inchdrive(23);
+drive(-50,50,500);
+inchdrive(17);
+intake.spin(reverse,1000,pct);
+}
+// ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
-}
+
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
@@ -149,3 +151,4 @@ int main() {
     wait(100, msec);
   }
 }
+       

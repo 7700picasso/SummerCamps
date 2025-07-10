@@ -19,44 +19,65 @@ competition Competition;
 
 // define your global instances of motors and other devices here
 brain Brain;
-motor LM = motor(PORT1,ratio18_1,false);
-motor RM=motor(PORT10,ratio18_1,true);
-motor intake=motor(PORT11,ratio18_1,true);
+motor LM =motor(PORT4,ratio18_1,false);
+motor RM =motor (PORT2,ratio18_1,true);
+motor intake = motor(PORT5,ratio18_1, true);
+motor LM2=motor(PORT14,ratio18_1,false);
+motor RM2=motor(PORT18, ratio18_1, true);
 controller Controller1;
-float pi  = 3.14;
-float dia = 4.00;
 
-void drive(int Lspeed, int rspeed, int wt){
-  LM.spin(fwd,Lspeed,pct);
+float dia=4.00;
+float pi=3.14;
+
+
+
+void drive (int lspeed, int rspeed, int wt){ 
+  LM.spin(fwd,lspeed,pct);
   RM.spin(fwd,rspeed,pct);
+  LM2.spin(fwd,lspeed,pct);
+  RM2.spin(fwd, rspeed,pct);
   wait(wt,msec);
 }
+
 void stop(){
- LM.stop(brake);
- RM.stop(brake);
+LM.stop(brake);
+RM.stop(brake);
+LM2.stop(brake);
+RM2.stop(brake);
 }
 
 
-void inchdrive( float inches) {
-   float x = 0;
-   LM.resetPosition();
-   if (inches > 0) {
-    while (x <= inches){
-      drive(50,50,20);
-      x = LM.position(rev)*dia*pi;
-      Brain.Screen.printAt(50,10,"Distance= %0.2f", x);
+void inchdrive(float inches){
+  float x=0;
+  LM.resetPosition();
+  x=LM.position(rev)*dia*pi;
+  if (inches>0){
 
-    }
-   }
-    else if (inches < 0) {
-    while (x <= fabs(inches)){
-      drive(-50,-50,20);
-      x = -LM.position(rev)*dia*pi;
-      Brain.Screen.printAt(50,10,"Distance= %0.2f", x);
+  
+while (x <= inches){
+ drive(50,50,20);
+ x=LM.position(rev)*dia*pi;
 
-    }
-   }
-   stop();}
+ Brain.Screen.printAt(50,10, "Distance=%0.2f",x);
+}}
+
+else if (inches <0){
+
+  
+while (x <= fabs(inches)){
+ drive(-50,-50,20);
+ x=-LM.position(rev)*dia*pi;
+
+ Brain.Screen.printAt(50,10, "Distance=%0.2f",x);
+}}
+
+
+ stop();
+
+}
+
+
+
 
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -70,7 +91,6 @@ void inchdrive( float inches) {
 
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
-  vexcodeInit();
 
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
@@ -86,13 +106,36 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void autonomous(void) {
-inchdrive(16);
-drive(50,-50,500)
+void autonomous(void) 
+{  
+  inchdrive(13);
+  stop();
+  drive(100,-100,1000);
+  inchdrive(2);
+
+  Brain.Screen.printAt(50 ,50 , " william " );
+ stop();
+  wait(1,sec);
+  
+  intake.spin(reverse,100,pct);
+  wait(5,sec);
+  intake.stop();
+ stop();
+     
+}
+
+
+
+
+
+
+
+
+  
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
-}
+
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
@@ -104,24 +147,28 @@ drive(50,-50,500)
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void usercontrol(void) {
+void usercontrol(void) 
+{
   // User control code here, inside the loop
-  while (1) {
-    int lstick = Controller1.Axis3.position();
-    int rstick = Controller1.Axis2.position();
-    drive(lstick,rstick,10);
-
-    if(Controller1.ButtonR2.pressing()){
-    intake.spin(fwd, 100, pct);
-    }
-    else if(Controller1.ButtonR1.pressing())
-    {
-      intake.spin(reverse, 100, pct);
-    }
-
+while (1) {
+  Brain.Screen.printAt(1,15,"Hi Ohio");
+int lstick=Controller1.Axis3.position();
+int rstick=Controller1.Axis2.position();
+drive(lstick,rstick,10);
+if(Controller1.ButtonR1.pressing())
+{
+  intake.spin(fwd,100,pct);
+}
+else if(Controller1.ButtonR2.pressing())
+{
+  intake.spin(reverse, 100, pct);
+}
+else{
+  intake.stop();
+}
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
-    // values based on feedback from the joysticks.
+    // values based o5n feedback from the joysticks.
 
     // ........................................................................
     // Insert user code here. This is where you use the joystick values to
@@ -130,7 +177,8 @@ void usercontrol(void) {
 
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
-  }
+  
+}
 }
 
 //

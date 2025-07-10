@@ -19,11 +19,11 @@ competition Competition;
 
 // define your global instances of motors and other devices here
 brain Brain;
-motor LM =motor(PORT13,ratio18_1,true);
-motor RM =motor (PORT20,ratio18_1,false);
-motor intake = motor(PORT7,ratio18_1, true);
-motor LM2=motor(PORT14,ratio18_1,true);
-motor RM2=motor(PORT18, ratio18_1, false);
+motor LM =motor(PORT4,ratio18_1,false);
+motor RM =motor (PORT2,ratio18_1,true);
+motor intake = motor(PORT5,ratio18_1, true);
+motor LM2=motor(PORT14,ratio18_1,false);
+motor RM2=motor(PORT18, ratio18_1, true);
 controller Controller1;
 
 float dia=4.00;
@@ -109,9 +109,11 @@ void pre_auton(void) {
 
 void autonomous(void) 
 {
-  inchdrive(25);
+  inchdrive(10);
   wait(1,sec);
-  drive(50,-50,1555);
+  drive(50,-50,100);
+  wait(1,sec);
+  inchdrive(10);
   stop();
   
 }
@@ -143,9 +145,10 @@ void usercontrol(void)
 {
   // User control code here, inside the loop
 while (1) {
+  Brain.Screen.printAt(1,15,"Hi Ohio");
 int lstick=Controller1.Axis3.position();
 int rstick=Controller1.Axis2.position();
-drive(lstick,rstick,10);
+drive(-lstick,-rstick,10);
 if(Controller1.ButtonR1.pressing())
 {
   intake.spin(fwd,100,pct);

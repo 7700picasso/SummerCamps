@@ -1,12 +1,12 @@
 {
 	"extension": {
-		"version": "0.7.2025041600",
+		"version": "0.6.1",
 		"json": 2
 	},
 	"project": {
-		"name": "ohioTallRobot",
+		"name": "CollinRobot",
 		"description": "",
-		"creationDate": "7/8/2025, 9:29:34 AM",
+		"creationDate": "7/10/2025, 10:36:52 AM",
 		"platform": "V5",
 		"language": "cpp",
 		"slot": 1,
