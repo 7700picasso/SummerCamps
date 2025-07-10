@@ -91,7 +91,6 @@ while (x <= fabs(inches)){
 
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
-  vexcodeInit();
 
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
@@ -108,14 +107,21 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) 
-{
-  inchdrive(10);
-  wait(1,sec);
-  drive(50,-50,100);
-  wait(1,sec);
-  inchdrive(10);
+{  
+  inchdrive(13);
   stop();
+  drive(100,-100,1000);
+  inchdrive(2);
+
+  Brain.Screen.printAt(50 ,50 , " william " );
+ stop();
+  wait(1,sec);
   
+  intake.spin(reverse,100,pct);
+  wait(5,sec);
+  intake.stop();
+ stop();
+     
 }
 
 
@@ -148,7 +154,7 @@ while (1) {
   Brain.Screen.printAt(1,15,"Hi Ohio");
 int lstick=Controller1.Axis3.position();
 int rstick=Controller1.Axis2.position();
-drive(-lstick,-rstick,10);
+drive(lstick,rstick,10);
 if(Controller1.ButtonR1.pressing())
 {
   intake.spin(fwd,100,pct);
