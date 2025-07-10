@@ -56,7 +56,7 @@ void inchdrive(float inches){
   
 while (x <= inches){
  drive(50,50,20);
- x=LM.position(rev)*dia*pi;
+ x=LM.position(rev)*dia*pi*1.5;
 
  Brain.Screen.printAt(50,10, "Distance=%0.2f",x);
 }}
@@ -66,7 +66,7 @@ else if (inches <0){
   
 while (x <= fabs(inches)){
  drive(-50,-50,20);
- x=-LM.position(rev)*dia*pi;
+ x=-LM.position(rev)*dia*pi*1.5;
 
  Brain.Screen.printAt(50,10, "Distance=%0.2f",x);
 }}
@@ -107,14 +107,16 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void autonomous(void) 
+void autonomous(void)
 {
-  inchdrive(25);
-  wait(1,sec);
-  drive(50,-50,1555);
-  stop();
-  
+inchdrive(30);
+intake.spin(fwd, 100, pct);
+//intake.stop(); 
+
+// wait(1,sec);
+// intake.spin(fwd,100,pct);
 }
+
 
 
 
@@ -143,8 +145,8 @@ void usercontrol(void)
 {
   // User control code here, inside the loop
 while (1) {
-int lstick=Controller1.Axis3.position();
-int rstick=Controller1.Axis2.position();
+int lstick= (Controller1.Axis3.position()) ;
+int rstick= (Controller1.Axis2.position() );
 drive(lstick,rstick,10);
 if(Controller1.ButtonR1.pressing())
 {
