@@ -23,6 +23,9 @@ motor LM = motor(PORT1,ratio18_1,false);
 motor RM=motor(PORT10,ratio18_1,true);
 motor intake=motor(PORT11,ratio18_1,true);
 controller Controller1;
+float pi  = 3.14;
+float dia = 4.00;
+
 void drive(int Lspeed, int rspeed, int wt){
   LM.spin(fwd,Lspeed,pct);
   RM.spin(fwd,rspeed,pct);
@@ -32,6 +35,29 @@ void stop(){
  LM.stop(brake);
  RM.stop(brake);
 }
+
+
+void inchdrive( float inches) {
+   float x = 0;
+   LM.resetPosition();
+   if (inches > 0) {
+    while (x <= inches){
+      drive(50,50,20);
+      x = LM.position(rev)*dia*pi;
+      Brain.Screen.printAt(50,10,"Distance= %0.2f", x);
+
+    }
+   }
+    else if (inches < 0) {
+    while (x <= fabs(inches)){
+      drive(-50,-50,20);
+      x = -LM.position(rev)*dia*pi;
+      Brain.Screen.printAt(50,10,"Distance= %0.2f", x);
+
+    }
+   }
+   stop();}
+
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -61,13 +87,8 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  drive(100,100,1500);
-  wait(1, sec);
-drive(100,-100,310);
-drive(100,100,3000);
-drive(100,-100,300);
-drive(100,100,1500);
-stop();
+inchdrive(16);
+drive(50,-50,500)
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
