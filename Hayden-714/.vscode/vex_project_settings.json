@@ -4,12 +4,12 @@
 		"json": 2
 	},
 	"project": {
-		"name": "ohioTallRobot",
+		"name": "hi",
 		"description": "",
-		"creationDate": "7/8/2025, 9:29:34 AM",
+		"creationDate": "7/14/2025, 1:15:35 PM",
 		"platform": "V5",
 		"language": "cpp",
-		"slot": 6,
+		"slot": 1,
 		"sdkVersion": "V5_20240802_15_00_00",
 		"cpp": {
 			"includePath": [],

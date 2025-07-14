@@ -1,14 +1,11 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
-/*    Author:       VEX                                                       */
-/*    Created:      Thu Sep 26 2019                                           */
-/*    Description:  Competition Template                                      */
+/*    Author:       student                                                   */
+/*    Created:      7/14/2025, 1:15:35 PM                                     */
+/*    Description:  V5 project                                                */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
-
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
 
@@ -17,67 +14,21 @@ using namespace vex;
 // A global instance of competition
 competition Competition;
 
-// define your global instances of motors and other devices here
 brain Brain;
-motor LM =motor(PORT4,ratio18_1,false);
-motor RM =motor (PORT20,ratio18_1,true);
-motor intake = motor(PORT5,ratio18_1, true);
-motor LM2=motor(PORT14,ratio18_1,false);
-motor RM2=motor(PORT18, ratio18_1, true);
-controller Controller1;
 
-float dia=4.00;
-float pi=3.14;
+// define your global instances of motors and other devices here
+motor LB(PORT1,ratio18_1,true);
+motor LF(PORT2,ratio18_1,true);
+motor RB(PORT7,ratio18_1,false);
+motor RF(PORT9,ratio18_1,false);
 
-
-
-void drive (int lspeed, int rspeed, int wt){ 
-  LM.spin(fwd,lspeed/2,pct);
-  RM.spin(fwd,rspeed/2,pct);
-  LM2.spin(fwd,lspeed/2,pct);
-  RM2.spin(fwd, rspeed/2,pct);
+void drive(int lspeed,int rspeed,int wt){
+  LF.spin(fwd,lspeed,pct);
+  LB.spin(fwd,lspeed,pct);
+  RF.spin(fwd,rspeed,pct);
+  RB.spin(fwd,rspeed,pct);
   wait(wt,msec);
 }
-
-void stop(){
-LM.stop(brake);
-RM.stop(brake);
-LM2.stop(brake);
-RM2.stop(brake);
-}
-
-
-void inchdrive(float inches){
-  float x=0;
-  LM.resetPosition();
-  x=LM.position(rev)*dia*pi;
-  if (inches>0){
-
-  
-while (x <= inches){
- drive(40,40,20);
- x=LM.position(rev)*dia*pi;
-
- Brain.Screen.printAt(50,10, "Distance=%0.2f",x);
-}}
-
-else if (inches <0){
-
-  
-while (x <= fabs(inches)){
- drive(-40,-40,20);
- x=-LM.position(rev)*dia*pi;
-
- Brain.Screen.printAt(50,10, "Distance=%0.2f",x);
-}}
-
-
- stop();
-
-}
-
-
-
 
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -90,8 +41,8 @@ while (x <= fabs(inches)){
 /*---------------------------------------------------------------------------*/
 
 void pre_auton(void) {
-  // Initializing Robot Configuration. DO NOT REMOVE!
-  vexcodeInit();
+// Brain.Screen.print("hi");
+// Brain.Screen.drawRectangle(0,0,50,50);
 
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
@@ -107,31 +58,16 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void autonomous(void) 
-{
-  inchdrive(18);
-  wait(1,sec);
-intake.spin(reverse, 80, pct);
+void autonomous(void) {
+  drive(100,100,500);
+  drive(100,-100,800);
+  drive(100,100,500);
+  drive(0,0,0);
 
-  // drive(50,-50,100);
-  // wait(1,sec);
-  // inchdrive(10);
-  // stop();
-  
-}
-
-
-
-
-
-
-
-
-  
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
-
+}
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
@@ -143,28 +79,26 @@ intake.spin(reverse, 80, pct);
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void usercontrol(void) 
-{
+void usercontrol(void) {
   // User control code here, inside the loop
-while (1) {
-  Brain.Screen.printAt(1,15,"Hi Ohio");
-int lstick=(Controller1.Axis3.position());
-int rstick=(Controller1.Axis2.position());
-drive(-lstick,-rstick,10);
-if(Controller1.ButtonR1.pressing())
-{
-  intake.spin(fwd,100,pct);
-}
-else if(Controller1.ButtonR2.pressing())
-{
-  intake.spin(reverse, 100, pct);
-}
-else{
-  intake.stop();
-}
+  while (1) {
+    if (Brain.Screen.pressing()); {
+      int x = Brain.Screen.xPosition();
+      int y = Brain.Screen.yPosition();
+     // Brain.Screen.clearScreen();
+      Brain.Screen.printAt(10,50, "brain pressed at %d,%d",x,y);
+
+      if(x > 90 && x < 230 && y > 60 && y < 160){
+      Brain.Screen.setFillColor(green);
+      }else{
+        Brain.Screen.setFillColor(red);
+      }
+
+      Brain.Screen.drawRectangle(90, 60, 140, 100);
+    }
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
-    // values based o5n feedback from the joysticks.
+    // values based on feedback from the joysticks.
 
     // ........................................................................
     // Insert user code here. This is where you use the joystick values to
@@ -173,8 +107,7 @@ else{
 
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
-  
-}
+  }
 }
 
 //
