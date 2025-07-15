@@ -13,20 +13,26 @@ using namespace vex;
 
 // A global instance of competition
 competition Competition;
+controller Controller1;
 brain Brain;
 // define your global instances of motors and other devices here
-motor LF = motor(PORT7, ratio18_1,true);
-motor LB(PORT8,ratio18_1,true);
-motor RT = motor(PORT4,ratio18_1,false);
-motor RB(PORT19,ratio18_1,false);
-
-void drive(int lspeed, int rspeed, int wt){
- LF.spin(fwd,lspeed,pct);
- RT.spin(fwd, rspeed,pct);
-LF.spin(fwd, lspeed,pct);
-RT.spin(fwd,  rspeed,pct);
-
-wait(wt,msec);
+motor LF = motor(PORT7, ratio18_1, true);
+motor LB(PORT8, ratio18_1, true);
+motor RT = motor(PORT4, ratio18_1, false);
+motor RB(PORT19, ratio18_1, false);
+void drivestop(){
+  LF.stop(brake);
+  LB.stop(brake);
+  RT.stop(brake);
+  RB.stop(brake);
+}
+void drive(int lspeed, int rspeed, int wt)
+{
+  LF.spin(fwd, lspeed, pct);
+  RT.spin(fwd, rspeed, pct);
+  LF.spin(fwd, lspeed, pct);
+  RT.spin(fwd, rspeed, pct);
+  wait(wt, msec);
 }
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -40,7 +46,6 @@ wait(wt,msec);
 
 void pre_auton(void)
 {
-
 
   // Brain.Screen.print("hi");
   // Brain.Screen.drawRectangle(0,0,50,50);
@@ -58,10 +63,11 @@ void pre_auton(void)
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void autonomous(void){
-drive(100,100,500);
-drive(100,-100,500);
-drive(100,100,500);
+void autonomous(void)
+{
+  drive(25, 25, 5000);
+  drive(50, -50, 2000);
+  drivestop();
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
@@ -79,12 +85,18 @@ drive(100,100,500);
 
 void usercontrol(void)
 {
-        Brain.Screen.drawRectangle(240, 130, 50, 50);
+  int cx = 0;
+  int cy = 0;
+
+  Brain.Screen.drawCircle(240, 130, 50, 50);
   // User control code here, inside the loop
   while (1)
   {
+cx+=Controller1.Axis4.position()/20;
+cy-=Controller1.Axis3.position()/20;
     if (Brain.Screen.pressing())
     {
+     
       int x = Brain.Screen.xPosition();
       int y = Brain.Screen.yPosition();
       Brain.Screen.printAt(10, 50, "Brain pressed at %d,%d", x, y);
@@ -99,8 +111,19 @@ void usercontrol(void)
       {
         Brain.Screen.setFillColor(red);
       }
+ 
       Brain.Screen.drawRectangle(240, 130, 50, 50);
     }
+    if (Controller1.ButtonA.pressing()){    
+    Brain.Screen.setFillColor(green);
+
+    }else
+    {
+      Brain.Screen.setFillColor(transparent);
+    }
+    
+
+    Brain.Screen.drawCircle(cx, cy, 10);
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
@@ -126,8 +149,8 @@ int main()
 
   // Run the pre-autonomous function.
   pre_auton();
-  usercontrol();
-  // Prevent main from exiting with an infinite loop.
+  // usercontrol();
+  //  Prevent main from exiting with an infinite loop.
   while (true)
   {
     wait(100, msec);
