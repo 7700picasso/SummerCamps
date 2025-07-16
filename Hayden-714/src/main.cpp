@@ -21,6 +21,7 @@ motor LB(PORT1, ratio18_1, true);
 motor LF(PORT2, ratio18_1, true);
 motor RB(PORT7, ratio18_1, false);
 motor RF(PORT9, ratio18_1, false);
+inertial gyro1 = inertial(PORT13);
 
 void drive(int lspeed, int rspeed, int wt)
 {
@@ -30,7 +31,42 @@ void drive(int lspeed, int rspeed, int wt)
   RB.spin(fwd, rspeed, pct);
   wait(wt, msec);
 }
+void drivestop(){
+  LF.stop(brake);
+  LB.stop(brake);
+  RF.stop(brake);
+  RB.stop(brake);
+}
 
+int sign(float a){
+  if (a > 0){
+    return 1;
+  }else{
+    return -1;
+  }
+}
+
+float pi = 3.14;
+float dia = 3.25;
+float gearRatio = 0.75;
+
+void inchDrive(float target, float speed = 100){
+  LF.setPosition(0,rev);
+  float x = LF.position(rev)*dia*pi*gearRatio;
+  while (fabs (x) < fabs (target)){
+    drive(speed* sign(target),speed* sign(target),10);
+    x = LF.position(rev)*dia*pi*gearRatio;
+  }
+  drivestop();
+}
+//realative turn
+void turn(float target){
+  gyro1.resetRotation();
+  while(fabs(gyro1.rotation()) < fabs(target)){
+    drive(50* sign(target),-50* sign(target),10);
+  }
+  drivestop();
+}
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -43,6 +79,7 @@ void drive(int lspeed, int rspeed, int wt)
 
 void pre_auton(void)
 {
+  // gyro1.calibrate(); //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Brain.Screen.print("hi");
   // Brain.Screen.drawRectangle(0,0,50,50);
 
@@ -60,16 +97,21 @@ void pre_auton(void)
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void autonomous(void)
-{
-  drive(100, 100, 3700);
-  drive(-100,100,300);
-  drive(100,100,3500);
-  drive(-100,100,360);
-  drive(100,100,3600);
-  drive(-100,100,450);
-  drive(100,100,3600);
-  drive(0, 0, 0);
+void autonomous(void){
+
+  turn(-90);
+  // //drive(100, 100, 3700); 
+  // inchDrive(84);
+  // drive(-100,100,300);
+  // //drive(100,100,3500);
+  // inchDrive(94);
+  // drive(-100,100,360);
+  // //drive(100,100,3600);
+  // inchDrive(84);
+  // drive(-100,100,450);
+  // //drive(100,100,3600);
+  // inchDrive(96);
+  // drive(0, 0, 0);
 
 // 800 is full turn
   // ..........................................................................
@@ -128,6 +170,11 @@ void usercontrol(void)
 
     cy = fmax(0,cy);
     cy = fmin(272,cy);
+    
+    Controller1.Screen.setCursor(0,0);
+    //gyro1.rotation();
+    //gyro1.heading();
+    Controller1.Screen.print("angle = %.2f   ",gyro1.heading());
 
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
@@ -140,6 +187,17 @@ void usercontrol(void)
 
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
+
+    int lstick = Controller1.Axis3.position();
+    int rstick = Controller1.Axis1.position();
+    if (fabs(lstick) < 10){
+      lstick = 0;
+    }
+    if (fabs(rstick) < 10){
+      rstick = 0;
+    }
+
+    drive(lstick+rstick,lstick-rstick,10);
   }
 }
 
