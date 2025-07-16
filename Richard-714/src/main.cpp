@@ -17,9 +17,10 @@ controller Controller1;
 brain Brain;
 // define your global instances of motors and other devices here
 motor LF = motor(PORT7, ratio18_1, true);
-motor LB(PORT8, ratio18_1, true);
+motor LB= motor(PORT8, ratio18_1, true);
 motor RT = motor(PORT4, ratio18_1, false);
-motor RB(PORT19, ratio18_1, false);
+motor RB=motor(PORT19, ratio18_1, false);
+inertial gyro1 = inertial(PORT5);
 void drivestop(){
   LF.stop(brake);
   LB.stop(brake);
@@ -31,8 +32,35 @@ void drive(int lspeed, int rspeed, int wt)
   LF.spin(fwd, lspeed, pct);
   RT.spin(fwd, rspeed, pct);
   LF.spin(fwd, lspeed, pct);
-  RT.spin(fwd, rspeed, pct);
+  RB.spin(fwd, rspeed, pct);
   wait(wt, msec);
+}
+
+int sign(float a){
+  if(a>0)
+  return 1;
+
+  return -1;
+
+}
+float pi = 3.141595962635;
+float dai = 4;
+float gearRopto = 1.5;
+void inchDrive(float target){
+LF.setPosition(0,rev);
+float x = LF.position(rev)*dai*pi*gearRopto;
+
+while(x< target){
+drive(50,-50,10);
+x = LF.position(rev)*dai*pi*gearRopto;
+}
+}
+void turn(float target){
+  gyro1.resetRotation();
+  while(fabs(gyro1.rotation() ) < fabs(target)){
+    drive(50*sign(target),10);
+  }
+  drivestop();
 }
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -65,9 +93,8 @@ void pre_auton(void)
 
 void autonomous(void)
 {
-  drive(25, 25, 5000);
-  drive(50, -50, 2000);
-  drivestop();
+  
+  
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
@@ -124,6 +151,14 @@ cy-=Controller1.Axis3.position()/20;
     
 
     Brain.Screen.drawCircle(cx, cy, 10);
+
+int lstick = Controller1.Axis3.position();
+int rstick = Controller1.Axis2.position();
+drive(lstick,rstick,10);
+
+
+Controller1.Screen.setCursor(0,0);
+Controller1.Screen.print("angle = %.2f    ", gyro1.yaw());
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
@@ -156,3 +191,4 @@ int main()
     wait(100, msec);
   }
 }
+
