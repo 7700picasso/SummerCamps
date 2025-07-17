@@ -55,10 +55,12 @@ float gearRatio = 1.5;
 void inchDrive(float target,float speed = 50){
   LF.setPosition(0,rev);
   float x = LF.position(rev)*dia*pi*gearRatio;
-
+  float error = target - x;
+  float kp = 3;
   while(fabs(x)< fabs(target)){
-    drive(speed * sign(target), speed * sign(target), 10);
     x = LF.position(rev)*dia*pi*gearRatio;
+    error = target - x;
+    drive(kp*error + 5*sign(error), kp*error + 5*sign(error), 10);
   }
   drivestop();
 }
@@ -70,6 +72,21 @@ void turn(float target){
   }
   drivestop();
 }
+
+void turnTo(float target){
+  float error = target - gyro1.yaw();
+  float kp = 0.5;
+  while(fabs(error)>1){
+    error = target - gyro1.yaw();
+    if(fabs(error)>180){
+      error = error - sign(error) * 360;
+    }
+    drive(kp*error + 5*sign(error), -kp*error - 5*sign(error), 10);
+  }
+  drivestop();
+}
+
+
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -82,6 +99,8 @@ void turn(float target){
 
 void pre_auton(void)
 {
+  gyro1.calibrate();
+  waitUntil(!gyro1.isCalibrating());
   // Brain.Screen.print("hi");
   // Brain.Screen.drawRectangle(0,0,50,50);
   //  All activities that occur before the competition starts
@@ -99,8 +118,25 @@ void pre_auton(void)
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void){
-turn(90);
-return;
+  inchDrive(48);
+  drivestop();
+  turnTo(-45);
+  drivestop();
+  inchDrive(36);
+  drivestop();
+  turnTo(-90);
+  drivestop();
+  inchDrive(65);
+  drivestop();
+  turnTo(180);
+  drivestop();
+  inchDrive(84);
+  drivestop();
+  turnTo(-270);
+  drivestop();
+  inchDrive(84);
+  drivestop();
+
 
   // inchDrive(72);
   // drivestop();
