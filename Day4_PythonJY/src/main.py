@@ -12,12 +12,16 @@ from vex import *
 
 # Define Brain
 brain = Brain()
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
 # Define Motor
 LF_motor = Motor(Ports.PORT1, GearSetting.RATIO_18_1, True)
 RF_motor = Motor(Ports.PORT6, GearSetting.RATIO_18_1, False)
 LB_motor = Motor(Ports.PORT11, GearSetting.RATIO_18_1, True)
 RB_motor = Motor(Ports.PORT2, GearSetting.RATIO_18_1, False)
+
+# Gyro
+gyro = Inertial(Ports.PORT20)
+
 
 # PI
 pi = 3.14
@@ -62,21 +66,46 @@ def inch_drive(target):
             brain.screen.print_at("backward inches: ", x, x = 0, y = 0)
     else:
         brake()
+    brake()
         
+def gyro_print():
+    rotation = gyro.rotation(DEGREES)
+    brain.screen.print_at("Rotation: ", rotation, x = 0, y = 80)
+
+def gyro_turn(target):
+    rotation = 0.0
+    gyro.reset_rotation()
+    error = 0.0
+    error = target - rotation
+    accuracy = 50.0
+    kp = 2.5
+    speed = kp * error
+    while abs(error) >= accuracy:
+        drive(speed, -speed, 10)
+        rotation = gyro.rotation(DEGREES)
+        error = target - rotation
+        speed = kp * error
+        gyro_print()
+
+    brake()
 
 def autonomous():
     brain.screen.clear_screen()
     brain.screen.print("autonomous code")
-    # place automonous code here
-    # drive(15, -15, 1000)
-    inch_drive(8)
+    inch_drive(6)
+    gyro_turn(-90)
+
     brake()
+    
 
 def user_control():
     brain.screen.clear_screen()
     brain.screen.print("driver control")
     # place driver control in this while loop
+    gyro.calibrate()
     while True:
+        brain.screen.clear_screen()
+        gyro_print()
         wait(20, MSEC)
 
 # create competition instance

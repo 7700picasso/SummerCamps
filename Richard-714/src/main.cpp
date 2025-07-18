@@ -19,9 +19,11 @@ brain Brain;
 motor LF = motor(PORT7, ratio18_1, true);
 motor LB= motor(PORT8, ratio18_1, true);
 motor RT = motor(PORT4, ratio18_1, false);
-motor RB=motor(PORT19, ratio18_1, false);
+motor RB(PORT19, ratio18_1, false);
 inertial gyro1 = inertial(PORT5);
-void drivestop(){
+
+void drivestop()
+{
   LF.stop(brake);
   LB.stop(brake);
   RT.stop(brake);
@@ -35,30 +37,56 @@ void drive(int lspeed, int rspeed, int wt)
   RB.spin(fwd, rspeed, pct);
   wait(wt, msec);
 }
-
-int sign(float a){
-  if(a>0)
+int sign(float a)
+{
+  if (a < 0)
+  {
+    return -1;
+  }
   return 1;
-
-  return -1;
-
 }
-float pi = 3.141595962635;
-float dai = 4;
-float gearRopto = 1.5;
-void inchDrive(float target){
-LF.setPosition(0,rev);
-float x = LF.position(rev)*dai*pi*gearRopto;
 
-while(x< target){
-drive(50,-50,10);
-x = LF.position(rev)*dai*pi*gearRopto;
+float pi = 3.141592653589;
+float dia = 4;
+float gearRatio = 1.5;
+
+void inchDrive(float target, float speed = 50)
+{
+  LF.setPosition(0, rev);
+  float x = LF.position(rev) * dia * pi * gearRatio;
+  float error = target - x;
+  float kp = 4;
+  while (fabs(error) > 0.25)
+  {
+
+    x = LF.position(rev) * dia * pi * gearRatio;
+
+    error = target - x;
+    float speed = kp * error + 10 * sign(error);
+
+    drive(speed, speed, 10);
+  }
+  drivestop();
 }
-}
-void turn(float target){
-  gyro1.resetRotation();
-  while(fabs(gyro1.rotation() ) < fabs(target)){
-    drive(50*sign(target),10);
+
+void turnTo(float target)
+{
+  float error = target - gyro1.yaw();
+  while (fabs(error) > 1)
+  {
+    error = target - gyro1.yaw();
+    float kp = 0.5;
+
+    if (error > 180)
+    {
+      error = error - 360;
+    }
+    if (error < -180)
+    {
+      error = error + 360;
+    }
+
+    drive(kp * error, -kp * error, 10);
   }
   drivestop();
 }
@@ -93,8 +121,9 @@ void pre_auton(void)
 
 void autonomous(void)
 {
-  
-  
+  inchDrive(72);
+  turnTo(-45);
+  inchDrive(60);
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
@@ -119,11 +148,11 @@ void usercontrol(void)
   // User control code here, inside the loop
   while (1)
   {
-cx+=Controller1.Axis4.position()/20;
-cy-=Controller1.Axis3.position()/20;
+    cx += Controller1.Axis4.position() / 20;
+    cy -= Controller1.Axis3.position() / 20;
     if (Brain.Screen.pressing())
     {
-     
+
       int x = Brain.Screen.xPosition();
       int y = Brain.Screen.yPosition();
       Brain.Screen.printAt(10, 50, "Brain pressed at %d,%d", x, y);
@@ -138,17 +167,17 @@ cy-=Controller1.Axis3.position()/20;
       {
         Brain.Screen.setFillColor(red);
       }
- 
+
       Brain.Screen.drawRectangle(240, 130, 50, 50);
     }
-    if (Controller1.ButtonA.pressing()){    
-    Brain.Screen.setFillColor(green);
-
-    }else
+    if (Controller1.ButtonA.pressing())
+    {
+      Brain.Screen.setFillColor(green);
+    }
+    else
     {
       Brain.Screen.setFillColor(transparent);
     }
-    
 
     Brain.Screen.drawCircle(cx, cy, 10);
 
