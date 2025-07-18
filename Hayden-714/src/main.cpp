@@ -72,10 +72,14 @@ void inchDrive(float target, float speed = 100){
   float x = LF.position(rev) * dia * pi * gearRatio;
   float error = target - x;
   float kp = 10;
+  float kt = 1;
+  float initialAngle = gyro1.rotation();
   while (fabs(x) < fabs(target)){
     x = LF.position(rev) * dia * pi * gearRatio;
     error = target - x;
-    drive(kp*error + 10*sign(error),kp*error + 10*sign(error),10);
+    float turnError = initialAngle - gyro1.rotation();
+    float speed = kp*error + 10*sign(error);
+    drive(speed+turnError*kt,speed-turnError*kt,10);
   }
   drivestop();
 }
@@ -98,7 +102,9 @@ void turn(float target)
 void turnTo(float target)
 {
   float error = target - gyro1.yaw();
+  float prevError = error;
   float kp = 2;
+  float kd = 4;
   while (fabs(error) > 1){
     error = target - gyro1.yaw();
     if (error > 180){
@@ -107,7 +113,9 @@ void turnTo(float target)
     if (error < -180){
       error = error + 360;
     }
-    drive(kp*(error),-kp*(error),10);
+    float speed = kp*error + 5*sign(error) + kd*(error-prevError);
+    prevError = error;
+    drive(speed,-speed,10);
   }
   drivestop();
 }
@@ -148,19 +156,41 @@ void pre_auton(void)
 void autonomous(void)
 {
 
+inchDrive(30);
+turnTo(-45);
+inchDrive(35);
+inchDrive(-30);
+turnTo(-89);
+inchDrive(55);
+turnTo(0);
+inchDrive(63);
+turnTo(135);
+inchDrive(25);
+inchDrive(-25);
+turnTo(180);
+inchDrive(48);
+turnTo(90);
+inchDrive(24);
+turnTo(180);
+inchDrive(50);
+
+
+  /*
   inchDrive(75);
   turnTo(-45);
   inchDrive(36);
   turnTo(-90);
   inchDrive(70);
   turnTo(180);
-
-
-  /*
-  inchDrive(96);*/
   
   
+  
+  */
+   
 
+  
+  
+ 
   
 
   // 800 is full turn
