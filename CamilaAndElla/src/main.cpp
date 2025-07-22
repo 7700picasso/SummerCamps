@@ -66,11 +66,12 @@ Brain.Screen.setFillColor(red);
 Brain.Screen.drawRectangle(215, 115, 50, 50);
 
 
-drive(50, 50, 4000);
-drive(-50, 50, 540);
-drive(50, 50, 2000);
-drive(-50, 50, 220);
-drive(-50, 50, 220);
+drive(50, 50, 4100);
+drive(-50, 50, 550);
+drive(50, 50, 2150);
+drive(-50, 50, 240);
+drive(50, 50, 1200);
+drive(-50, 50, 265);
 drive(50, 50, 3000);
 DriveStop();
 }
