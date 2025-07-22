@@ -15,10 +15,11 @@ using namespace vex;
 competition Competition;
 
 // define your global instances of motors and other devices here
-brain Brain1; 
+brain Brain; 
 controller Controller;
 motor LM (PORT10,ratio18_1, false);
 motor RM (PORT1,ratio18_1, true);
+motor intake (PORT9, ratio18_1, false );
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -56,11 +57,26 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  // ..........................................................................
-  // Insert autonomous user code here.
-  // ..........................................................................
-}
 
+//Brain.Screen.printAt(10,20, "Hello");
+//Brain.Screen.setPenColor(red);
+//Brain.Screen.setFillColor(blue);
+//Brain.Screen.drawCircle(240, 120, 125);
+//Brain.Screen.setPenColor(purple);
+//Brain.Screen.setFillColor(green);
+//Brain.Screen.drawRectangle(200, 120, 50, 50);
+drive(50,50, 4600);
+drive(-50, 50, 460);
+drive(50, 50, 2000);
+drive(-50, 50, 240);
+drive(50, 50, 2400);
+drive(-50, 50, 250);
+drive(50, 50, 2550);
+drive(-50, 50, 550);
+drive(50, 50, 3000);
+
+driveStop();
+}
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /*                              User Control Task                            */
@@ -77,9 +93,15 @@ void usercontrol(void) {
     int Lspeed = Controller.Axis3.position(pct);
     int Rspeed = Controller.Axis2.position(pct);
     drive(Lspeed, Rspeed, 10);
-
-
-
+    if (Controller.ButtonR1.pressing()){
+      intake.spin(forward, 100, pct);
+    }
+    else if (Controller.ButtonR2.pressing()){
+      intake.spin(forward, -100, pct );
+    }
+    else {
+      intake.stop();
+    }
 
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
