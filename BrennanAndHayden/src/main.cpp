@@ -19,6 +19,7 @@ brain Brain;
 controller Controller;
 motor LM (PORT6, ratio18_1, false);
 motor RM (PORT1, ratio18_1, true);
+motor intake (PORT21, ratio18_1, true);
 
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -52,9 +53,23 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  // ..........................................................................
-  // Insert autonomous user code here.
-  // ..........................................................................
+  Brain.Screen.printAt(10, 20, "HELLO");
+  Brain.Screen.setFillColor(purple);
+  Brain.Screen.setPenColor(green);
+  Brain.Screen.drawCircle(240, 120, 100);
+  Brain.Screen.setFillColor(blue);
+  Brain.Screen.setPenColor(red);
+  Brain.Screen.drawRectangle(215, 95, 50, 50);
+  drive(50, 50, 2650);
+  drive(-50, 50, 305);
+  drive(50, 50, 2250);
+  drive(-50, 50, 350);
+  drive(50, 50, 4000);
+  drive(-50, 50, 580);
+  drive(50, 50, 4000);
+  drive(-50, 50, 610);
+  drive(50, 50, 4500);
+  driveStop();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -73,6 +88,15 @@ void usercontrol(void) {
     int Lspeed = Controller.Axis3.position(pct);
     int Rspeed = Controller.Axis2.position(pct);
     drive(Lspeed,Rspeed,10);
+  if (Controller.ButtonR1.pressing()){
+    intake.spin(fwd, 100, pct);
+  }
+  else if (Controller.ButtonR2.pressing()){
+    intake.spin(fwd, -100, pct);
+  }
+  else{
+    intake.stop(brake);
+  }
 
 
 
