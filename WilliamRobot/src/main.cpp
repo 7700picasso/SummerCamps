@@ -108,19 +108,21 @@ void pre_auton(void) {
 
 void autonomous(void) 
 {  
-  inchdrive(13);
-  stop();
-  drive(100,-100,1000);
-  inchdrive(2);
-
-  Brain.Screen.printAt(50 ,50 , " william " );
- stop();
+  intake.spin(reverse, 55, pct);
+  inchdrive(25); 
   wait(1,sec);
+  intake.stop(
+ 
+
+
+
+
+
+
+  stop();
+
   
-  intake.spin(reverse,100,pct);
-  wait(5,sec);
-  intake.stop();
- stop();
+
      
 }
 
