@@ -18,7 +18,8 @@ competition Competition;
 brain Brain; 
 controller Controller; 
 motor LM (PORT20,ratio18_1, false); 
-motor RM (PORT9,ratio18_1, true);
+motor RM (PORT9,ratio18_1, true); 
+motor intake(PORT1, ratio18_1, false  );
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
   
@@ -62,9 +63,25 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  // ..........................................................................
-  // Insert autonomous user code here.
-  // ..........................................................................
+
+
+Brain.Screen.printAt(10, 20, "ive been a good boy :)"); 
+Brain.Screen.drawCircle(240, 120, 70);
+Brain.Screen.setPenColor(yellow);
+Brain.Screen.drawRectangle(20, 30, 16, 20);
+drive(50, 50, 3100); // goes straight for 4 seconds 
+wait(500, msec); 
+drive(-50, 50, 500); //left turn for 600 miliseconds
+wait(500, msec); 
+drive(45, 45, 1800);  // goes straight for 2.5 seconds 
+wait(500, msec); 
+drive(-50, 50, 100); //left turn for 100 miliseconds 
+wait(500, msec); 
+drive(50, 50, 2500); // goes straight for  seconds
+wait(500, msec); 
+drive(-50, 50, 100); //left turn for 100 miliseconds
+wait(500, msec); 
+driveStop();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -83,13 +100,22 @@ void usercontrol(void) {
     int Lspeed = Controller.Axis3.position(pct); 
     int Rspeed = Controller.Axis2.position(pct); 
     drive(Lspeed, Rspeed, 10);
+    if (Controller.ButtonR1.pressing()){
+      intake.spin(forward, 100, pct);
+    }
+   else if (Controller.ButtonR1.pressing()){
+      intake.spin(fwd, -100, pct ); } 
+      
 
-    
+        else {
+           intake.stop();
+
+      }
+      
     wait(20, msec); // Sleep the task for a short amount of time to
-                    // prevent wasted resources.
+                    // prevent wasted resources
+  }}
 
-  }
-}
 
 //
 // Main will set up the competition functions and callbacks.
