@@ -65,10 +65,10 @@ Brain.Screen.drawCircle(240, 120, 125);
 Brain.Screen.setPenColor(red);
 Brain.Screen.setFillColor(blue);
 Brain.Screen.drawRectangle(200, 120, 50, 50);
-drive(50, 50,4000);
-drive(-50, 50, 500);
-drive(50, 50, 2500);
-drive(50, -50, 4000);
+drive(50, 50,4125);
+drive(50, -50, 200);
+drive(50, -50, 400);
+drive(50, -50, 100);
 
 
 driveStop();
