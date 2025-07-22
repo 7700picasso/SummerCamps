@@ -15,10 +15,11 @@ using namespace vex;
 competition Competition;
 
 // define your global instances of motors and other devices here
-brain Brain21; 
+brain Brain; 
 controller Controller;
 motor LeftMotor (PORT10, ratio18_1, false);
 motor RightMotor (PORT1, ratio18_1, true);
+motor intake(PORT2, ratio18_1, false);
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /* 
@@ -55,9 +56,23 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  // ..........................................................................
-  // Insert autonomous user code here.
-  // ..........................................................................
+ 
+Brain.Screen.printAt(10, 20, "C++ code is goated");
+Brain.Screen.setPenColor(green);
+Brain.Screen.setFillColor(yellow);
+Brain.Screen.drawCircle(240, 120, 100);
+Brain.Screen.setPenColor(white);
+Brain.Screen.setFillColor(red);
+Brain.Screen.drawRectangle(215, 115, 50, 50);
+
+
+drive(50, 50, 4000);
+drive(-50, 50, 540);
+drive(50, 50, 2000);
+drive(-50, 50, 220);
+drive(-50, 50, 220);
+drive(50, 50, 3000);
+DriveStop();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -76,6 +91,16 @@ void usercontrol(void) {
     int Lspeed = Controller.Axis3.position(pct);
     int Rspeed = Controller.Axis2.position(pct);
     drive(Lspeed, Rspeed, 10);
+    if (Controller.ButtonR1.pressing()){
+      intake.spin(forward, 100, pct);
+    }
+    else if (Controller.ButtonR2.pressing()){
+      intake.spin(forward, -100, pct);
+    }
+    else {
+      intake.stop();
+    }
+
 
 
 
