@@ -39,6 +39,18 @@ LeftMotor.stop(brake);
 RightMotor.stop(brake);
 
 }
+
+void inchdrive( float inches) {
+  LeftMotor.setPosition(0,rev);
+  float x = LeftMotor.position(rev) * 3.1415 * 4;
+  while(x<inches){
+    drive(40, 40, 10);
+    x = LeftMotor.position(rev) * 3.1415 * 4;
+    Brain.Screen.printAt(10,50,"inches = %.2f",x);
+  }
+  DriveStop();
+}
+
 void pre_auton(void) {
 
   // All activities that occur before the competition starts
@@ -56,26 +68,12 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
- 
-Brain.Screen.printAt(10, 20, "C++ code is goated");
-Brain.Screen.setPenColor(green);
-Brain.Screen.setFillColor(yellow);
-Brain.Screen.drawCircle(240, 120, 100);
-Brain.Screen.setPenColor(white);
-Brain.Screen.setFillColor(red);
-Brain.Screen.drawRectangle(215, 115, 50, 50);
 
+intake.spin(fwd,100,pct);
+inchdrive(20);
+intake.stop();  
 
-drive(50, 50, 4100);
-drive(-50, 50, 550);
-drive(50, 50, 2150);
-drive(-50, 50, 240);
-drive(50, 50, 1200);
-drive(-50, 50, 265);
-drive(50, 50, 3000);
-DriveStop();
 }
-
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /*                              User Control Task                            */
