@@ -34,7 +34,16 @@ void driveStop(){
   RM.stop(brake);
 }
 
-
+void inchdrive( float inches) {
+  LM.setPosition(0,rev);
+  float x= LM.position(rev) * 3.1415 * 4;
+  while(x<inches){
+    drive(50,50,10);
+    x = LM.position(rev) *3.1415 * 4;
+    Brain.Screen.printAt(10,50,"inches = %.2f",x);
+  }
+  driveStop();
+}
 
 
 
@@ -56,24 +65,12 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void autonomous(void) {
-
-Brain.Screen.printAt(10, 20, "C++ code is goated");
-Brain.Screen.setPenColor(red);
-Brain.Screen.setFillColor(white);
-Brain.Screen.drawCircle(240, 120, 125);
-Brain.Screen.setPenColor(red);
-Brain.Screen.setFillColor(blue);
-Brain.Screen.drawRectangle(200, 120, 50, 50);
-drive(50, 50,4125);
-drive(50, -50, 200);
-drive(50, -50, 400);
-drive(50, -50, 100);
-
-
-driveStop();
+void autonomous(void) 
+{
+intake.spin(fwd,100,pct);
+  inchdrive(20);
+intake.stop();
 }
-
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
