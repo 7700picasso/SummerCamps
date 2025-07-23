@@ -85,8 +85,8 @@ intake.stop();
 void usercontrol(void) {
   // User control code here, inside the loop
   while (1) {
- int Lspeed=Controller.Axis3.position(pct); 
- int Rspeed=Controller.Axis2.position(pct); 
+ int Lspeed=Controller.Axis3.position(pct)*.75; 
+ int Rspeed=Controller.Axis2.position(pct)*.75;
  drive(Lspeed, Rspeed,10);
 
 
@@ -120,5 +120,6 @@ int main() {
 
   // Prevent main from exiting with an infinite loop.
   while (true) {
-  wait(100);
+  wait(100, msec);
+  }
   }

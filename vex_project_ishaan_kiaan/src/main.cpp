@@ -111,7 +111,7 @@ void usercontrol(void) {
     if (Controller.ButtonR1.pressing()){
       intake.spin(forward, 100, pct);
     }
-   else if (Controller.ButtonR1.pressing()){
+   else if (Controller.ButtonR2.pressing()){
       intake.spin(fwd, -100, pct ); } 
       
 
