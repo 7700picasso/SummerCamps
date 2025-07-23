@@ -19,7 +19,7 @@ brain Brain;
 controller Controller; 
 motor LM (PORT20,ratio18_1, false); 
 motor RM (PORT9,ratio18_1, true); 
-motor intake(PORT14, ratio18_1, false);
+motor intake(PORT13, ratio18_1, false);
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
   
