@@ -17,9 +17,9 @@ competition Competition;
 // define your global instances of motors and other devices here
 brain Brain; 
 controller Controller;
-motor LM (PORT1,ratio18_1, false); 
-motor RM (PORT10,ratio18_1, true);
-motor intake (PORT1, ratio18_1, false );
+motor LM (PORT1,ratio18_1, true); 
+motor RM (PORT10,ratio18_1, false);
+motor intake (PORT11, ratio18_1, false );
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -120,6 +120,5 @@ int main() {
 
   // Prevent main from exiting with an infinite loop.
   while (true) {
-    wait(100, msec);
+  wait(100);
   }
-}
