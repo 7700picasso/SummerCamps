@@ -20,6 +20,7 @@ controller Controller;
 motor LM (PORT6, ratio18_1, false);
 motor RM (PORT1, ratio18_1, true);
 motor intake (PORT21, ratio18_1, true);
+motor roller (PORT15, ratio6_1, true);
 
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -33,6 +34,17 @@ void drive(int Lspeed, int Rspeed, int waitTime) {
 void driveStop(){
   LM.stop(brake);
   RM.stop(brake);
+}
+
+void inchdrive( float inches) {
+  LM.setPosition(0,rev);
+  float x = LM.position(rev) * 3.1415926535897932384626 * 4;
+  while(x<inches){
+    drive(25, 25, 10);
+    x = LM.position(rev) * 3.1415926535897932384626 * 4;
+    Brain.Screen.printAt(10, 50, "inches driven = %.2f", x);
+  }
+  driveStop();
 }
 /*---------------------------------------------------------------------------*/
 
@@ -53,23 +65,7 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  Brain.Screen.printAt(10, 20, "HELLO");
-  Brain.Screen.setFillColor(purple);
-  Brain.Screen.setPenColor(green);
-  Brain.Screen.drawCircle(240, 120, 100);
-  Brain.Screen.setFillColor(blue);
-  Brain.Screen.setPenColor(red);
-  Brain.Screen.drawRectangle(215, 95, 50, 50);
-  drive(50, 50, 2650);
-  drive(-50, 50, 305);
-  drive(50, 50, 2250);
-  drive(-50, 50, 350);
-  drive(50, 50, 4000);
-  drive(-50, 50, 580);
-  drive(50, 50, 4000);
-  drive(-50, 50, 610);
-  drive(50, 50, 4500);
-  driveStop();
+  inchdrive(20);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -96,6 +92,16 @@ void usercontrol(void) {
   }
   else{
     intake.stop(brake);
+  }
+
+  if (Controller.ButtonL1.pressing()){
+    roller.spin(fwd, 100, pct);
+  }
+  else if (Controller.ButtonL2.pressing()){
+    roller.spin(fwd, -100, pct);
+  }
+  else{
+    roller.stop(brake);
   }
 
 
