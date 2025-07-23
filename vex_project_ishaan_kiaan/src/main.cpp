@@ -19,7 +19,7 @@ brain Brain;
 controller Controller; 
 motor LM (PORT20,ratio18_1, false); 
 motor RM (PORT9,ratio18_1, true); 
-motor intake(PORT1, ratio18_1, false  );
+motor intake(PORT14, ratio18_1, false);
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
   
@@ -41,11 +41,18 @@ void driveStop(){
 
 
 
-
-
- 
-/*---------------------------------------------------------------------------*/
-
+void inchdrive(  float inches) {
+  LM. setPosition(0,rev); 
+  float x = LM.position(rev) * 3.1415 * 4;
+  while(x<inches){
+    drive(50,50,10); 
+    x = LM.position(rev) * 3.1415 * 4; 
+    Brain.Screen.printAt(10,50,"inches = %.2f",x);
+  }
+  
+  driveStop();
+}
+  
 void pre_auton(void) {
 
   // All activities that occur before the competition starts
@@ -62,26 +69,27 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void autonomous(void) {
+void autonomous(void) 
+{
+inchdrive(20);
 
-
-Brain.Screen.printAt(10, 20, "ive been a good boy :)"); 
-Brain.Screen.drawCircle(240, 120, 70);
-Brain.Screen.setPenColor(yellow);
-Brain.Screen.drawRectangle(20, 30, 16, 20);
-drive(50, 50, 3100); // goes straight for 4 seconds 
-wait(500, msec); 
-drive(-50, 50, 500); //left turn for 600 miliseconds
-wait(500, msec); 
-drive(45, 45, 1800);  // goes straight for 2.5 seconds 
-wait(500, msec); 
-drive(-50, 50, 100); //left turn for 100 miliseconds 
-wait(500, msec); 
-drive(50, 50, 2500); // goes straight for  seconds
-wait(500, msec); 
-drive(-50, 50, 100); //left turn for 100 miliseconds
-wait(500, msec); 
-driveStop();
+// Brain.Screen.printAt(10, 20, "ive been a good boy :)"); 
+// Brain.Screen.drawCircle(240, 120, 70);
+// Brain.Screen.setPenColor(yellow);
+// Brain.Screen.drawRectangle(20, 30, 16, 20);
+// drive(50, 50, 3100); // goes straight for 4 seconds 
+// wait(500, msec); 
+// drive(-50, 50, 500); //left turn for 600 miliseconds
+// wait(500, msec); 
+// drive(45, 45, 1800);  // goes straight for 2.5 seconds 
+// wait(500, msec); 
+// drive(-50, 50, 100); //left turn for 100 miliseconds 
+// wait(500, msec); 
+// drive(50, 50, 2500); // goes straight for  seconds
+// wait(500, msec); 
+// drive(-50, 50, 100); //left turn for 100 miliseconds
+// wait(500, msec); 
+// driveStop();
 }
 
 /*---------------------------------------------------------------------------*/
