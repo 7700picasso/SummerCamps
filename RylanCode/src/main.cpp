@@ -19,7 +19,7 @@ brain Brain;
 controller Controller;
 motor LM (PORT10,ratio18_1, false);
 motor RM (PORT1,ratio18_1, true);
-motor intake (PORT9, ratio18_1, false );
+motor intake (PORT8, ratio18_1, false );
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -35,7 +35,16 @@ void driveStop(){
 }
 
 
-
+void inchdrive( float inches) {
+  LM.setPosition(0,rev);
+  float x = LM.position(rev) * 3.1415 * 4;
+  while(x<inches){
+    drive(25, 25, 10);
+    x = LM.position(rev) * 3.1415 * 4;
+    Brain.Screen.printAt(10,50,"inches = %.2f",x);
+  }
+  driveStop();
+}
 
 
 /*---------------------------------------------------------------------------*/
@@ -56,7 +65,11 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void autonomous(void) {
+void autonomous(void) 
+{
+inchdrive(20);
+
+
 
 //Brain.Screen.printAt(10,20, "Hello");
 //Brain.Screen.setPenColor(red);
@@ -65,17 +78,17 @@ void autonomous(void) {
 //Brain.Screen.setPenColor(purple);
 //Brain.Screen.setFillColor(green);
 //Brain.Screen.drawRectangle(200, 120, 50, 50);
-drive(50,50, 4600);
-drive(-50, 50, 460);
-drive(50, 50, 2000);
-drive(-50, 50, 240);
-drive(50, 50, 2400);
-drive(-50, 50, 250);
-drive(50, 50, 2550);
-drive(-50, 50, 550);
-drive(50, 50, 3000);
+// drive(50,50, 4600);
+// drive(-50, 50, 460);
+// drive(50, 50, 2000);
+// drive(-50, 50, 240);
+// drive(50, 50, 2400);
+// drive(-50, 50, 250);
+// drive(50, 50, 2550);
+// drive(-50, 50, 550);
+// drive(50, 50, 3000);
 
-driveStop();
+//driveStop();
 }
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
