@@ -8,6 +8,7 @@
 /*----------------------------------------------------------------------------*/
 
 #include "vex.h"
+#include "main.h"
 
 using namespace vex;
 
@@ -15,45 +16,47 @@ using namespace vex;
 competition Competition;
 
 // define your global instances of motors and other devices here
-brain Brain; 
-controller Controller; 
-motor LM (PORT20,ratio18_1, false); 
-motor RM (PORT9,ratio18_1, true); 
+brain Brain;
+controller Controller;
+motor LM(PORT20, ratio18_1, false);
+motor RM(PORT9, ratio18_1, true);
 motor intake(PORT13, ratio18_1, false);
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
-  
-void drive(int Lspeed, int Rspeed, int waitTime){
- LM.spin(forward,Lspeed, pct );
-RM.spin(forward, Rspeed, pct ); 
-wait(waitTime, msec); 
 
+void drive(int Lspeed, int Rspeed, int waitTime)
+{
+  LM.spin(forward, Lspeed, pct);
+  RM.spin(forward, Rspeed, pct);
+  wait(waitTime, msec);
 }
-void driveStop(){
- LM.stop(brake); 
- RM.stop(brake); 
+void driveStop()
+{
+  LM.stop(brake);
+  RM.stop(brake);
 }
 
-
-
-
-
-
-
-
-void inchdrive(  float inches) {
-  LM. setPosition(0,rev); 
+void inchdrive(float inches)
+{
+  LM.setPosition(0, rev);
   float x = LM.position(rev) * 3.1415 * 4;
-  while(x<inches){
-    drive(50,50,10); 
-    x = LM.position(rev) * 3.1415 * 4; 
-    Brain.Screen.printAt(10,50,"inches = %.2f",x);
+  float error = inches - x;
+  float accuracy = 0.2;
+  float kp = 5;
+  while (fabs(error) > accuracy)
+  {
+    float speed = kp * error;
+    drive(speed, speed, 10);
+    error = inches - x;
+    x = LM.position(rev) * 3.1415 * 4;
+    Brain.Screen.printAt(10, 50, "inches = %.2f, error = %2f", x, error);
   }
-  
+  Brain.Screen.printAt(10, 70, "done");
   driveStop();
 }
-  
-void pre_auton(void) {
+
+void pre_auton(void)
+{
 
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
@@ -69,29 +72,23 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void autonomous(void) 
+void autonomous(void)
 {
-inchdrive(20);
 
-// Brain.Screen.printAt(10, 20, "ive been a good boy :)"); 
-// Brain.Screen.drawCircle(240, 120, 70);
-// Brain.Screen.setPenColor(yellow);
-// Brain.Screen.drawRectangle(20, 30, 16, 20);
-// drive(50, 50, 3100); // goes straight for 4 seconds 
-// wait(500, msec); 
-// drive(-50, 50, 500); //left turn for 600 miliseconds
-// wait(500, msec); 
-// drive(45, 45, 1800);  // goes straight for 2.5 seconds 
-// wait(500, msec); 
-// drive(-50, 50, 100); //left turn for 100 miliseconds 
-// wait(500, msec); 
-// drive(50, 50, 2500); // goes straight for  seconds
-// wait(500, msec); 
-// drive(-50, 50, 100); //left turn for 100 miliseconds
-// wait(500, msec); 
-// driveStop();
+  // first go straight for  30 inches
+  inchdrive(26);
+
+  // turn right to the face the goal (use the drive function to do this)
+  drive(50, -50, 1050);
+  driveStop();
+  // go straight to get close the goal
+  inchdrive(12);
+  // use your intake to score
+  intake.spin(fwd, -100, pct);
+  wait(5, sec);
+
+  Brain.Screen.printAt(10, 20, "ive been a good boy :)");
 }
-
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /*                              User Control Task                            */
@@ -102,33 +99,38 @@ inchdrive(20);
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void usercontrol(void) {
+void usercontrol(void)
+{
   // User control code here, inside the loop
-  while (1) {
-    int Lspeed = Controller.Axis3.position(pct); 
-    int Rspeed = Controller.Axis2.position(pct); 
+  while (1)
+  {
+    int Lspeed = Controller.Axis3.position(pct);
+    int Rspeed = Controller.Axis2.position(pct);
     drive(Lspeed, Rspeed, 10);
-    if (Controller.ButtonR1.pressing()){
+    if (Controller.ButtonR1.pressing())
+    {
       intake.spin(forward, 100, pct);
     }
-   else if (Controller.ButtonR2.pressing()){
-      intake.spin(fwd, -100, pct ); } 
-      
+    else if (Controller.ButtonR2.pressing())
+    {
+      intake.spin(fwd, -100, pct);
+    }
 
-        else {
-           intake.stop();
+    else
+    {
+      intake.stop();
+    }
 
-      }
-      
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources
-  }}
-
+  }
+}
 
 //
 // Main will set up the competition functions and callbacks.
 //
-int main() {
+int main()
+{
   // Set up callbacks for autonomous and driver control periods.
   Competition.autonomous(autonomous);
   Competition.drivercontrol(usercontrol);
@@ -137,7 +139,8 @@ int main() {
   pre_auton();
 
   // Prevent main from exiting with an infinite loop.
-  while (true) {
+  while (true)
+  {
     wait(100, msec);
   }
 }
