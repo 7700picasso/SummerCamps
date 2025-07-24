@@ -19,7 +19,7 @@ brain Brain;
 controller Controller;
 motor LeftMotor (PORT10, ratio18_1, false);
 motor RightMotor (PORT1, ratio18_1, true);
-motor intake(PORT2, ratio18_1, false);
+motor intake(PORT2, ratio18_1, true);
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /* 
@@ -43,11 +43,19 @@ RightMotor.stop(brake);
 void inchdrive( float inches) {
   LeftMotor.setPosition(0,rev);
   float x = LeftMotor.position(rev) * 3.1415 * 4;
-  while(x<inches){
-    drive(40, 40, 10);
+  float error = inches - x;
+  float accuracy = 0.2;
+  float kp = 6;
+  while (fabs(error>accuracy))
+  
+  {
+    float speed = kp*error;
+    drive(speed, speed, 10);
     x = LeftMotor.position(rev) * 3.1415 * 4;
+    error = inches - x;
     Brain.Screen.printAt(10,50,"inches = %.2f",x);
   }
+  Brain.Screen.printAt(10,70,"done");
   DriveStop();
 }
 
@@ -68,10 +76,32 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
+//go straight to the blocks
 
-intake.spin(fwd,100,pct);
+
 inchdrive(20);
-intake.stop();  
+intake.spin(fwd, 100, pct);
+//intake the blocks
+
+
+//go backwards
+drive(-50, -50, 20);
+wait(500,msec);
+intake.stop();
+//turn 
+drive(-50, 50, 450);
+
+//go straight to line up with the goal 
+inchdrive(25); 
+
+//turn to the face the goal 
+drive(35, -35, 690); 
+
+//go staright to get close to the goal 
+drive(50, 50, 490);
+
+//outtake the block in your robot
+intake.spin(fwd, 100, pct); 
 
 }
 /*---------------------------------------------------------------------------*/
