@@ -35,14 +35,22 @@ void driveStop(){
 }
 
 
-void inchdrive( float inches) {
+void inchdrive( float inches) 
+{
   LM.setPosition(0,rev);
   float x = LM.position(rev) * 3.1415 * 4;
-  while(x<inches){
-    drive(25, 25, 10);
+  float error = inches - x;
+  float accuracy = 0.2;
+  float kp = 5;
+  while (fabs(error)>accuracy)
+  {
+    float speed = kp*error;
+    drive(speed, speed, 10); 
     x = LM.position(rev) * 3.1415 * 4;
-    Brain.Screen.printAt(10,50,"inches = %.2f",x);
+    error = inches - x;
+    Brain.Screen.printAt(10, 50,"inches = %.2f",x);
   }
+  Brain.Screen.printAt(10, 70,"done");
   driveStop();
 }
 
@@ -67,9 +75,30 @@ void pre_auton(void) {
 
 void autonomous(void) 
 {
+
+
+
+
+  inchdrive(30);
+intake.spin(forward, 100, pct);
+wait(1.1, sec);
+intake.stop();
+inchdrive(-20);
+drive(-50, 50, 460);
 inchdrive(20);
+driveStop();
 
 
+
+
+
+//inchdrive(25);
+//drive(50,-50, 600);
+//inchdrive(23);
+//intake.spin(forward, 100, pct);
+//wait(5, sec);
+//intake.stop();
+//driveStop();
 
 //Brain.Screen.printAt(10,20, "Hello");
 //Brain.Screen.setPenColor(red);
@@ -86,10 +115,25 @@ inchdrive(20);
 // drive(-50, 50, 250);
 // drive(50, 50, 2550);
 // drive(-50, 50, 550);
-// drive(50, 50, 3000);
+ //drive(50, 50, 3000);
 
 //driveStop();
 }
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /*                              User Control Task                            */
@@ -102,7 +146,7 @@ inchdrive(20);
 
 void usercontrol(void) {
   // User control code here, inside the loop
-  while (1) {
+while (1) {
     int Lspeed = Controller.Axis3.position(pct);
     int Rspeed = Controller.Axis2.position(pct);
     drive(Lspeed, Rspeed, 10);
@@ -133,7 +177,7 @@ int main() {
   pre_auton();
 
   // Prevent main from exiting with an infinite loop.
-  while (true) {
+while (true) {
     wait(100, msec);
   }
 }
