@@ -79,26 +79,34 @@ void autonomous(void)
 
 
 
-  inchdrive(30);
-intake.spin(forward, 100, pct);
-wait(1.1, sec);
-intake.stop();
-inchdrive(-20);
-drive(-50, 50, 460);
-inchdrive(20);
-driveStop();
+  //inchdrive(30);
+//intake.spin(forward, 100, pct);
+//wait(1.1, sec);
+////intake.stop();
+//inchdrive(-20);
+//drive(-50, 50, 460);
+//nchdrive(20);
+//driveStop();
 
 
-
-
-
-//inchdrive(25);
-//drive(50,-50, 600);
+//inchdrive(27);
+//wait(1, sec);
+//drive(-50,50, 530);
 //inchdrive(23);
 //intake.spin(forward, 100, pct);
 //wait(5, sec);
 //intake.stop();
 //driveStop();
+
+
+inchdrive(33);
+wait(1, sec);
+drive(50,-50, 500);
+inchdrive(23);
+intake.spin(forward, 100, pct);
+wait(5, sec);
+intake.stop();
+driveStop();
 
 //Brain.Screen.printAt(10,20, "Hello");
 //Brain.Screen.setPenColor(red);
