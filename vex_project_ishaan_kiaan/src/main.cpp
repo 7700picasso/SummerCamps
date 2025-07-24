@@ -112,11 +112,14 @@ void usercontrol(void)
       intake.spin(forward, 100, pct);
     }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     else if (Controller.ButtonR2.pressing())
     {
       intake.spin(fwd, -100, pct);
     }
 =======
+=======
+>>>>>>> Stashed changes
    else if (Controller.ButtonR2.pressing()){
       intake.spin(reverse, 100, pct ); } 
       
