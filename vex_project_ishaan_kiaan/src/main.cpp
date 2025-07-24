@@ -79,10 +79,10 @@ void autonomous(void)
   inchdrive(26);
 
   // turn right to the face the goal (use the drive function to do this)
-  drive(50, -50, 1050);
+  drive(50, -50, 998);
   driveStop();
   // go straight to get close the goal
-  inchdrive(12);
+  inchdrive(14);
   // use your intake to score
   intake.spin(fwd, -100, pct);
   wait(5, sec);
