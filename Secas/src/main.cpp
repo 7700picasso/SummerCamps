@@ -19,7 +19,7 @@ brain Brain;
 controller Controller;
 motor LM (PORT1,ratio18_1, false); 
 motor RM (PORT10,ratio18_1, true);
-motor intake (PORT11, ratio18_1, false );
+motor intake (PORT12, ratio18_1, false );
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -34,13 +34,20 @@ void driveStop(){
   RM.stop(brake);
 }
 
-void inchdrive( float inches) {
+void inchdrive( float inches) 
+  {
   LM.setPosition(0,rev);
   float x= LM.position(rev) * 3.1415 * 4;
-  while(x<inches){
-    drive(50,50,10);
+  float error = inches - x;
+  float accuracy = 0.2;
+  float kp = 5;
+  while(fabs(error)>accuracy)
+  {
+    float speed = kp*error;
+    error = inches - x;
+    drive(speed, speed, 10);
     x = LM.position(rev) *3.1415 * 4;
-    Brain.Screen.printAt(10,50,"inches = %.2f",x);
+    //Brain.Screen.printAt(10,50, "inches = %.2f", "error = %.2f", x,error);
   }
   driveStop();
 }
@@ -67,9 +74,22 @@ void pre_auton(void) {
 
 void autonomous(void) 
 {
-intake.spin(fwd,100,pct);
-  inchdrive(20);
+ intake.spin(fwd, 43, pct); 
+ 
+ inchdrive  (24);
+  
+ intake.stop();
+ 
+ drive (-50, 50, 340);
+ driveStop();
+
+ inchdrive (float (13.99));
+
+
+ intake.spin(reverse, 55, pct);
+ wait(2,sec);
 intake.stop();
+
 }
 
 /*---------------------------------------------------------------------------*/

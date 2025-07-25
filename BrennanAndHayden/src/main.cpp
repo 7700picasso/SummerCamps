@@ -39,11 +39,17 @@ void driveStop(){
 void inchdrive( float inches) {
   LM.setPosition(0,rev);
   float x = LM.position(rev) * 3.1415926535897932384626 * 4;
-  while(x<inches){
-    drive(25, 25, 10);
+  float error = inches - x;
+  float accuracy = 0.2;
+  float kp = 5;
+  while(fabs(error) > accuracy){
+    float speed = kp*error;
+    drive(speed, speed, 10);
     x = LM.position(rev) * 3.1415926535897932384626 * 4;
+    error = inches - x;
     Brain.Screen.printAt(10, 50, "inches driven = %.2f", x);
   }
+  Brain.Screen.printAt(10,70,"done");
   driveStop();
 }
 /*---------------------------------------------------------------------------*/
@@ -65,7 +71,22 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  inchdrive(20);
+  roller.spin(fwd, 100, pct);
+  intake.spin(fwd,20, pct);
+  inchdrive(23);
+  roller.stop(coast);
+  roller.spin(fwd, 25, pct);
+  inchdrive(-17);
+  intake.stop(coast);
+  drive(50, -50, 550);
+  inchdrive(25);
+  drive(-50, 50, 645);
+  roller.stop(coast);
+  inchdrive(16);
+  intake.spin(fwd, 100, pct);
+  wait(5,sec);
+  intake.stop(coast);
+  driveStop();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -91,7 +112,7 @@ void usercontrol(void) {
     intake.spin(fwd, -100, pct);
   }
   else{
-    intake.stop(brake);
+    intake.stop(coast);
   }
 
   if (Controller.ButtonL1.pressing()){
@@ -101,7 +122,7 @@ void usercontrol(void) {
     roller.spin(fwd, -100, pct);
   }
   else{
-    roller.stop(brake);
+    roller.stop(coast);
   }
 
 
