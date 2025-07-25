@@ -76,18 +76,16 @@ void autonomous(void) {
   inchdrive(23);
   roller.stop(coast);
   roller.spin(fwd, 25, pct);
-  inchdrive(-20);
+  inchdrive(-17);
   intake.stop(coast);
-  drive(50, -50, 590);
-  inchdrive(23);
-  drive(-50, 50, 675);
+  drive(50, -50, 550);
+  inchdrive(25);
+  drive(-50, 50, 645);
   roller.stop(coast);
-  inchdrive(12.5);
+  inchdrive(16);
   intake.spin(fwd, 100, pct);
-  wait(2,sec);
+  wait(5,sec);
   intake.stop(coast);
-  inchdrive(-10);
-  drive(-50,50,250);
   driveStop();
 }
 
