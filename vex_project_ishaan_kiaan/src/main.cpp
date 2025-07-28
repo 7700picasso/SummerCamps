@@ -76,16 +76,17 @@ void autonomous(void)
 {
 
   // first go straight for  30 inches
-  inchdrive(26);
+  inchdrive(27);
 
   // turn right to the face the goal (use the drive function to do this)
-  drive(50, -50, 998);
+  drive(50, -50, 620);
   driveStop();
   // go straight to get close the goal
-  inchdrive(14);
+  inchdrive(29); 
   // use your intake to score
-  intake.spin(fwd, -100, pct);
-  wait(5, sec);
+  intake.spin(fwd, -100, pct); 
+  wait(5, sec); 
+  intake.stop();
 
   Brain.Screen.printAt(10, 20, "ive been a good boy :)");
 }
@@ -111,19 +112,12 @@ void usercontrol(void)
     {
       intake.spin(forward, 100, pct);
     }
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     else if (Controller.ButtonR2.pressing())
     {
       intake.spin(fwd, -100, pct);
     }
-=======
-=======
->>>>>>> Stashed changes
    else if (Controller.ButtonR2.pressing()){
       intake.spin(reverse, 100, pct ); } 
-      
->>>>>>> Stashed changes
 
     else
     {
