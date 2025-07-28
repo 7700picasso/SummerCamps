@@ -17,12 +17,12 @@ competition Competition;
 // define your global instances of motors and other devices here
 brain Brain; 
 controller Controller;
-motor LM (PORT1,ratio18_1, false); 
-motor RM (PORT10,ratio18_1, true);
+motor LM (PORT1,ratio18_1, true); 
+motor RM (PORT10,ratio18_1, false);
 motor intake (PORT12, ratio18_1, false );
-/*---------------------------------------------------------------------------*/
-/*                          Pre-Autonomous Functions                         */
-/*                                                                           */
+/*-------------------------------------------------------------------------*/
+/*                         Pre-Autonomous Functions                         */
+/*-----------------------------------------------------------------------                                                                          */
 void drive(int Lspeed, int Rspeed, int waitTime){
   LM.spin(forward,Lspeed, pct );
   RM.spin(forward,Rspeed, pct);
@@ -47,7 +47,7 @@ void inchdrive( float inches)
     error = inches - x;
     drive(speed, speed, 10);
     x = LM.position(rev) *3.1415 * 4;
-    //Brain.Screen.printAt(10,50, "inches = %.2f", "error = %.2f", x,error);
+    //(Brain.Screen.printAt)(10,50, "inches = %.2f", "error = %.2f", x,error.);
   }
   driveStop();
 }
@@ -83,13 +83,11 @@ void autonomous(void)
  drive (-50, 50, 340);
  driveStop();
 
- inchdrive (float (13.99));
-
+ inchdrive (float (14));
 
  intake.spin(reverse, 55, pct);
  wait(2,sec);
 intake.stop();
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -105,18 +103,18 @@ intake.stop();
 void usercontrol(void) {
   // User control code here, inside the loop
   while (1) {
- int Lspeed=Controller.Axis3.position(pct)*.75; 
- int Rspeed=Controller.Axis2.position(pct)*.75;
+ int Lspeed=Controller.Axis2.position(pct)*.75; 
+ int Rspeed=Controller.Axis3.position(pct)*.75;
  drive(Lspeed, Rspeed,10);
 
 
- if (Controller.ButtonR1.pressing()){
+ if(Controller.ButtonR1.pressing()){
   intake.spin(forward, 100, pct);
  }
-else if (Controller.ButtonR2.pressing()){
+else if(Controller.ButtonR2.pressing()){
   intake.spin(forward ,-100, pct );
 }
-else {
+else{
   intake.stop(); 
 }
 
