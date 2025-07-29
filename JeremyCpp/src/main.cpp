@@ -9,7 +9,7 @@
 
 #include "vex.h"
 using namespace vex;
-
+competition Competititon;
 // A global instance of vex::brain used for printing to the V5 brain screen
 vex::brain       Brain;
 controller Controller1;
@@ -19,39 +19,64 @@ motor RF = motor(PORT2, ratio18_1, true);
 motor LB = motor(PORT5, ratio18_1, false);
 motor RB = motor(PORT3, ratio18_1, true);
 
-int main() {
-    //double b = 0;
-    //int X = 9;
-    // Brain.Screen.printAt(10, 50, "Hello V5 %D", X);
-    // Brain.Screen.drawCircle(100, 100, 50);
-    int x = 240;
+
+
+void drive(int lspeed, int rspeed, int wt) {
+    LF.spin(fwd, lspeed, pct);
+    RF.spin(fwd, rspeed, pct);
+    LB.spin(fwd, lspeed, pct);
+    RB.spin(fwd, rspeed, pct);
+    wait(wt, msec);
+}
+
+void drivestop() {
+    LF.stop(brake);
+    RF.stop(brake);
+    LB.stop(brake);
+    RB.stop(brake);
+}
+
+void inch_drive(float target) {
+    LF.setPosition(0, rev);
+    RF.setPosition(0, rev);
+    float x = ((LF.position(rev) + RF.position(rev) / 2) * M_PI * 4 * 3/2);
+    while (x < target) {
+        drive(50, 50, 10);
+        x = ((LF.position(rev) + RF.position(rev) / 2) * M_PI * 4 * 3/2);
+    }
+}
+
+
+void autonomous() {
+    inch_drive(24 * 7);
+    drivestop();
+    drive(7.5, -7.5, 1000);
+    drivestop();
+    
+}
+
+void drivercontrol() {
+     int x = 240;
     int y = 136;
     int size = 15;
     while(true) {
-        x += Controller1.Axis1.position()/20;
-        y -= Controller1.Axis2.position()/20;
-        Brain.Screen.setFillColor(green);
-        Brain.Screen.setPenColor(black);
-        Brain.Screen.drawCircle(x,y, size);
-        x = fmax(0,x);
-        x = fmin(480,x);
-        y = fmax(0,y);
-        y = fmin(272,y);
-        if (Controller1.ButtonX.pressing()) {
-            Brain.Screen.clearScreen();
-        }
-        if (Controller1.ButtonUp.pressing()) {
-            size += 1;
-        }
-        if (Controller1.ButtonDown.pressing()) {
-            size -= 1;
-        }
-        // }
-        // Brain.Screen.setFillColor(yellow);
-        // Brain.Screen.setPenColor(yellow);
-        // Brain.Screen.drawCircle(240, (sin(b * 0.1) * 50) + 100, 50);
-        // b += 1;
-        // Allow other tasks to run
+        Brain.Screen.print("BEEP BOOP DRIVE DRIVE");
+        
+        int lstick = Controller1.Axis3.position();
+        int rstick = Controller1.Axis1.position();
+
+        //tank drive
+        //drive(lstick, rstick, 10);
+
+        //arcade
+        drive(lstick-rstick, lstick+rstick, 10);
         wait(10, msec); 
     }
 }
+
+int main() {
+   Competititon.autonomous(autonomous);
+   Competititon.drivercontrol(drivercontrol);
+
+}
+
