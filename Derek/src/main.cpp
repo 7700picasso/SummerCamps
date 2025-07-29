@@ -9,20 +9,61 @@
 #include "vex.h"
 
 using namespace vex;
-
+competition Competition;
 // A global instance of vex::brain used for printing to the V5 brain screen
 vex::brain       Brain;
 controller Controller1;
-motor LF = motor(PORT1, ratio18_1,false);
-motor RF = motor(PORT11, ratio18_1,true);
-
-motor RB = motor(PORT2, ratio18_1,true);
-// controller Controller2;
-// define your global instances of motors and other devices here
+motor LF = motor(PORT1, ratio18_1,true);
+motor RF = motor(PORT15, ratio18_1,false);
+motor LB = motor (PORT14, ratio18_1,true);
+motor RB = motor(PORT2, ratio18_1,false);
 
 
-int main() {
-    // int x=10;
+void drive(int lspeed,int rspeed,int wt){
+LF.spin(fwd,lspeed,pct);
+LB.spin(fwd,lspeed,pct);
+RF.spin(fwd,rspeed,pct);
+RB.spin(fwd,rspeed,pct);
+wait(wt,msec);
+}
+
+void drivestop(){
+    LF.stop(brake);
+    RF.stop(brake);
+    LB.stop(brake);
+    RB.stop(brake);
+    }
+    void inchdrive(float target){
+        LF.setPosition(0,rev);
+        RF.setPosition(0,rev);
+        float x = ((LF.position(rev)+RF.position(rev))/2) * M_PI*4 * 3.0/2;
+            
+        
+        while(x<target){
+            drive(40,40,10);
+             x = ((LF.position(rev)+RF.position(rev))/2) * M_PI*4 * 3.0/2;
+             
+            
+            
+        }
+        drivestop();
+    }
+    void autonomous(){
+        
+        
+            inchdrive(48);
+            drive(80,40,100);
+             drive(40,80,100);
+             wait(100,msec);
+            inchdrive(48);
+           
+            
+            
+
+    }
+
+    void drivercontrol(){
+         // int x=10;
     int X=9;
     Brain.Screen.printAt( 10, 50, "Hello V5 %d",X );
     Brain.Screen.drawCircle(100,100,50);
@@ -143,16 +184,37 @@ h-=Controller1.Axis3.position()/20;
         }
         
         
-    // x=fmax(0,x);
-    // x=fmin(480,x);
-    // y=fmax(y,120);
-    // x=fmin(y,0);
+    // x<=480;
+    // x>=0;
+    // y<=0;
+    // y>=-240;
+    x=fmax(0,x);
+    x=fmin(480,x);
+    y=fmax(y,20);
+    y=fmin(y,-240);
+    int lstick = Controller1.Axis3.position();
+    int rstick = Controller1.Axis2.position();
+    drive(lstick,rstick,10);
+    
         // Allow other tasks to run
         this_thread::sleep_for(10);
         
     
     }
+    }
+// controller Controller2;
+// define your global instances of motors and other devices here
+
+
+int main() {
+    Competition.autonomous(autonomous);
+    Competition.drivercontrol(drivercontrol);
+    while(true){
+        wait(100, msec);
+    }
+    
+    }
     
     
        
-}
+
