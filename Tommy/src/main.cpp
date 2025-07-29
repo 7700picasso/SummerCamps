@@ -10,6 +10,8 @@
 
 using namespace vex;
 
+competition Competition;
+
 // A global instance of vex::brain used for printing to the V5 brain screen
 vex::brain       Brain;
 controller Controller1;
@@ -17,6 +19,77 @@ motor LF = motor(PORT11,ratio18_1,true);
 motor RF = motor(PORT13,ratio18_1,false);
 motor LB = motor(PORT12,ratio18_1,true);
 motor RB = motor(PORT14,ratio18_1,false);
+motor intake = motor(PORT15,ratio18_1,false);
+
+void drive(int lspeed,int rspeed, int wt){
+    LF.spin(fwd, lspeed, pct);
+    LB.spin(fwd, lspeed, pct);
+    RF.spin(fwd, rspeed, pct);
+    RB.spin(fwd, rspeed, pct);
+    wait(wt, msec);
+}
+
+void drivestop(brakeType mode = brake){
+    LF.stop(mode);
+    LB.stop(mode);
+    RF.stop(mode);
+    RB.stop(mode);
+}
+
+void stopintake(brakeType mode = brake){
+    intake.stop(mode);
+}
+
+void intakefwd(int ispeed){
+    intake.spin(fwd,ispeed,pct);
+}
+
+void intakerev(int ispeed){
+    intake.spin(reverse,ispeed,pct);
+}
+
+void inchdrive(double target){
+    LF.setPosition(0,rev);
+    RF.setPosition(0,rev);
+    double x = ((LF.position(rev)+RF.position(rev))/2) * M_PI * 4 * 3.0/2;
+    while(x<target){
+        drive(50,50,10);
+        x = ((LF.position(rev)+RF.position(rev))/2) * M_PI * 4 * 3.0/2;
+    }
+    drivestop();
+}
+
+void autonomous(){
+    inchdrive(80);
+    wait(100,msec);
+    drive(-50, 50, 165);
+    wait(100,msec);
+    inchdrive(94);
+    wait(100,msec);
+    drive(-50, 50, 165);
+    wait(100,msec);
+    inchdrive(80);
+    wait(100,msec);
+    drive(-50, 50, 165);
+    wait(100,msec);
+    inchdrive(94);
+}
+
+void drivercontrol(){
+    while(true){
+        if(Controller1.ButtonR1.pressing()){
+            intakefwd(100);
+        }else if(Controller1.ButtonR2.pressing()){
+            intakerev(100);
+        }else{
+            stopintake();
+        }
+        int lstick = Controller1.Axis1.position();
+        int rstick = Controller1.Axis3.position();
+        drive(rstick+lstick, rstick-lstick, 10);
+        wait(10, msec);
+    }
+}
 // define your global instances of motors and other devices here
 
 
@@ -58,22 +131,32 @@ int main() {
         
     }*/
 
-    int x = 100;
+    /*int x = 100;
     int y = 100;
     int t = 0;
-    int R = 1;
+    int r = 1;
+    int c = 10;
     while(1){
         t++;
-        R+=Controller1.Axis3.position()/100;
+        if (Controller1.ButtonUp.pressing()){
+            c++;
+        }
+        r+=Controller1.Axis3.position()/100;
         x+=Controller1.Axis1.position()/20;
         y-=Controller1.Axis2.position()/20;
-        Brain.Screen.drawCircle(x,y,R,t%360);
-        Brain.Screen.setPenColor(t%360);
+        Brain.Screen.drawCircle(x,y,r,c%360);
+        Brain.Screen.setPenColor(c%360);
         x=fmax(0,x);
         x=fmin(480,x);
         y=fmax(0,y);
         y=fmin(250,y);
         wait(10,msec);
+    }*/
+    
+    Competition.autonomous(autonomous);
+    Competition.drivercontrol(drivercontrol);
+    while (true){
+        wait(100, msec);
     }
 };
 
