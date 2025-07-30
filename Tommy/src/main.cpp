@@ -20,6 +20,7 @@ motor RF = motor(PORT13,ratio18_1,false);
 motor LB = motor(PORT12,ratio18_1,true);
 motor RB = motor(PORT14,ratio18_1,false);
 motor intake = motor(PORT15,ratio18_1,false);
+inertial gyro1 = inertial(PORT17);
 
 void drive(int lspeed,int rspeed, int wt){
     LF.spin(fwd, lspeed, pct);
@@ -59,24 +60,44 @@ void inchdrive(double target){
     drivestop();
 }
 
+int sign(float a){return (a<0?-1:1);}
+
+void turnTo(double angle){
+    double error = angle - gyro1.rotation();
+    double kp = 0.7;
+    double maxSpeed = 35;
+    while(fabs(error)>1){
+        double speed = error*kp;
+        if(fabs(speed)>maxSpeed){
+            speed = maxSpeed*sign(speed);
+        }
+        drive(speed,-speed,10);
+        error = angle - gyro1.rotation();
+        while(fabs(error)>180){
+            error-=360 * sign(error);
+        }
+    }
+    Brain.Screen.printAt(10,100,"angle = %.2f   ", gyro1.rotation());
+    drivestop();
+}
+
 void autonomous(){
-    inchdrive(80);
-    wait(100,msec);
-    drive(-50, 50, 165);
-    wait(100,msec);
-    inchdrive(94);
-    wait(100,msec);
-    drive(-50, 50, 165);
-    wait(100,msec);
-    inchdrive(80);
-    wait(100,msec);
-    drive(-50, 50, 165);
-    wait(100,msec);
-    inchdrive(94);
+    turnTo(90);
+    wait(500,msec);
+    turnTo(270);
+    wait(500,msec);
+    turnTo(0);
 }
 
 void drivercontrol(){
     while(true){
+        Controller1.Screen.setCursor(1,1);
+        /*
+        yaw
+        rotation
+        heading
+        */
+        Controller1.Screen.print("angle = %.2f       ", gyro1.heading());
         if(Controller1.ButtonR1.pressing()){
             intakefwd(100);
         }else if(Controller1.ButtonR2.pressing()){
@@ -153,6 +174,8 @@ int main() {
         wait(10,msec);
     }*/
     
+    gyro1.calibrate();
+    waitUntil(!gyro1.isCalibrating());
     Competition.autonomous(autonomous);
     Competition.drivercontrol(drivercontrol);
     while (true){
