@@ -13,7 +13,7 @@ competition Competition;
 // A global instance of vex::brain used for printing to the V5 brain screen
 vex::brain       Brain;
 controller Controller;
-
+inertial gyro1 = inertial(PORT12);
 
 
 
@@ -51,23 +51,30 @@ void inchdrive(float target){
     drivestop();
 }
 
+int sign(float a){return (a<0?-1:1);}
+
+void turnTo(float angle){
+    float error = angle - gyro1.rotation();
+    float kp = 0.75;
+    float maxSpeed = 25;
+    while(fabs(error) >3){
+        float speed = error*kp;
+        if(fabs(speed)>maxSpeed){
+            speed = maxSpeed*sign(speed);
+        }
+        
+        drive(speed,-speed,10);
+        error = angle - gyro1.rotation();
+        while(fabs(error)>180){
+            error-=360 * sign(error);
+        }
+    }
+    Brain.Screen.printAt(10,100,"angle  = %2f  ",gyro1.rotation());
+    drivestop();
+}    
+
 void autonomous(){
-    inchdrive(53);
-    drivestop();
-    drive(-30, 30, 500);
-    drivestop();
-    inchdrive(53);
-    drivestop();
-    drive(-30, 30, 500);
-    drivestop();
-    inchdrive(53);
-    drivestop();
-    drive(-30, 30, 500);
-    drivestop();
-    inchdrive(53);
-    drivestop();
-    drive(-30, 30, 3000);
-    drivestop();
+    turnTo(-90);
 }
 
 void drivercontrol(){
@@ -78,10 +85,13 @@ void drivercontrol(){
     while(1) {
       Brain.Screen.drawCircle(X, Y, t/100, t%360);
       Brain.Screen.setPenColor(t%360);
-      
-      
-      
-      
+      Controller.Screen.setCursor(1,1);
+      /*
+      yaw
+      rotation
+      heading
+      */
+      Controller.Screen.print("angle = %.2f      ", gyro1.rotation());
      t++;
      X+=Controller.ButtonRight.pressing()*2;
      Y+=Controller.ButtonDown.pressing()*2;
@@ -103,6 +113,8 @@ void drivercontrol(){
 }
 
 int main() {
+    gyro1.calibrate();
+    waitUntil(!gyro1.isCalibrating());
     Competition.autonomous(autonomous);
     Competition.drivercontrol(drivercontrol);
     while (true)
