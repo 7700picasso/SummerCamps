@@ -17,7 +17,7 @@ motor LF = motor(PORT1, ratio18_1,true);
 motor RF = motor(PORT15, ratio18_1,false);
 motor LB = motor (PORT14, ratio18_1,true);
 motor RB = motor(PORT2, ratio18_1,false);
-
+inertial gyro1 = inertial(PORT10);
 
 void drive(int lspeed,int rspeed,int wt){
 LF.spin(fwd,lspeed,pct);
@@ -48,17 +48,40 @@ void drivestop(){
         }
         drivestop();
     }
+    void turnTo(float angle){
+        float error = angle- gyro1.rotation();
+        float kp=0.50;
+        while(fabs(error)>1){
+            drive(error*kp,-error*kp,10);
+             error = angle- gyro1.rotation();
+             while(error>180){
+error-=360;
+             }
+             while(error<-180){
+                error+=360;
+             }
+        }
+        Brain.Screen.printAt(10,100,"angle= %.2f", gyro1.rotation());
+        drivestop();
+    }
     void autonomous(){
-        
-        
-            inchdrive(48);
-            drive(80,40,100);
-             drive(40,80,100);
-             wait(100,msec);
-            inchdrive(48);
            
-            
-            
+            wait(100,msec);
+            turnTo(45);
+            wait(100,msec);
+            inchdrive(40);   
+            wait(100,msec);
+            turnTo(135);
+            wait(100,msec);
+            inchdrive(40);   
+            wait(100,msec);
+            turnTo(225);
+            wait(100,msec);
+            inchdrive(40);   
+            turnTo(315);
+            wait(100,msec);
+            inchdrive(40);
+            turnTo(0);
 
     }
 
@@ -195,7 +218,8 @@ h-=Controller1.Axis3.position()/20;
     int lstick = Controller1.Axis3.position();
     int rstick = Controller1.Axis2.position();
     drive(lstick,rstick,10);
-    
+    Controller1.Screen.setCursor(1,1);
+    Controller1.Screen.print("Angle = %.2f",gyro1.yaw());
         // Allow other tasks to run
         this_thread::sleep_for(10);
         
@@ -207,6 +231,8 @@ h-=Controller1.Axis3.position()/20;
 
 
 int main() {
+    gyro1.calibrate();
+    waitUntil(! gyro1.isCalibrating());
     Competition.autonomous(autonomous);
     Competition.drivercontrol(drivercontrol);
     while(true){
