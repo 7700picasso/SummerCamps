@@ -39,11 +39,29 @@ void drivestop()
     RB.stop(brake);
 }
 
+void inch_drive(float target)
+{
+    LF.setPosition(0, rev);
+    RF.setPosition(0, rev);
+    float x = ((LF.position(rev) + RF.position(rev) / 2) * M_PI * 4 * 3 / 2);
+    float error = target - x;
+    float kp = 5;
+    while (fabs(error) > 0.5)
+    {
+        error = target - x;
+        float speed = kp * error;
+        drive(speed, speed, 10);
+        x = ((LF.position(rev) + RF.position(rev) / 2) * M_PI * 4 * 3 / 2);
+    }
+    Brain.Screen.printAt(0, 120, "Distance: %.2f      ",x );
+    drivestop();
+}
+
 void turnTo(float angle)
 {
     float error = angle - gyro1.rotation();
-    float kpn = 0.3;
-    while (fabs(error) > 2)
+    float kpn = 0.6;
+    while (fabs(error) > 3)
     {
         drive(-error * kpn, error * kpn, 100);
         error = angle - gyro1.rotation();
@@ -61,23 +79,25 @@ void turnTo(float angle)
     Brain.Screen.print("out of loop");
 }
 
-void inch_drive(float target)
-{
-    LF.setPosition(0, rev);
-    RF.setPosition(0, rev);
-    float x = ((LF.position(rev) + RF.position(rev) / 2) * M_PI * 4 * 3 / 2);
-    while (x < target)
-    {
-        drive(50, 50, 10);
-        x = ((LF.position(rev) + RF.position(rev) / 2) * M_PI * 4 * 3 / 2);
-    }
-    drivestop();
-}
 
 void autonomous()
 {
-    Brain.Screen.print("HELLO");
-    turnTo(90);
+    int distance = 48;
+    inch_drive(distance);
+    turnTo(60);
+    inch_drive(distance);
+    turnTo(60 * 2);
+    inch_drive(distance);
+    turnTo(60 * 3);
+    inch_drive(distance);
+    turnTo(60 * 4);
+    inch_drive(distance);
+    turnTo(60 * 5);
+    inch_drive(distance);
+    turnTo(60 * 6);
+    
+    
+
     
 }
 
