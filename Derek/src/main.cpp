@@ -36,22 +36,24 @@ void drivestop(){
     void inchdrive(float target){
         LF.setPosition(0,rev);
         RF.setPosition(0,rev);
-        float x = ((LF.position(rev)+RF.position(rev))/2) * M_PI*4 * 3.0/2;
-            
         
-        while(x<target){
-            drive(40,40,10);
+        float x = ((LF.position(rev)+RF.position(rev))/2) * M_PI*4 * 3.0/2;
+            float error = target-x;
+            float kp = 5;
+        while(fabs(error)>0.5){
+            error = target-x;
+            float speed = kp*error;
+            drive(speed,speed,10);
              x = ((LF.position(rev)+RF.position(rev))/2) * M_PI*4 * 3.0/2;
-             
-            
-            
         }
+        Brain.Screen.printAt(0,120, "dist = %.2f    ",x);
         drivestop();
     }
+    int sign(float a){return (a<0? - 1:1);}
     void turnTo(float angle){
         float error = angle- gyro1.rotation();
         float kp=0.50;
-        while(fabs(error)>1){
+        while(fabs(error)>3){
             drive(error*kp,-error*kp,10);
              error = angle- gyro1.rotation();
              while(error>180){
@@ -65,23 +67,29 @@ error-=360;
         drivestop();
     }
     void autonomous(){
-           
+        //    inchdrive(24);
+        //    inchdrive(-24);
             wait(100,msec);
-            turnTo(45);
+            turnTo(300);
             wait(100,msec);
-            inchdrive(40);   
+            inchdrive(-40);   
             wait(100,msec);
-            turnTo(135);
+            turnTo(240);
             wait(100,msec);
-            inchdrive(40);   
+            inchdrive(-40);   
             wait(100,msec);
-            turnTo(225);
+            turnTo(180);
             wait(100,msec);
-            inchdrive(40);   
-            turnTo(315);
+            inchdrive(-40);   
+            turnTo(120);
             wait(100,msec);
-            inchdrive(40);
+            inchdrive(-40);
+            turnTo(60);
+            wait(100,msec);
+            inchdrive(-40);
             turnTo(0);
+            wait(100,msec);
+            inchdrive(-40);
 
     }
 
