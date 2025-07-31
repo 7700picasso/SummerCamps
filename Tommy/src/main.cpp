@@ -119,8 +119,16 @@ void autonomous(){
 
 void drivercontrol(){
     while(true){
-        double f = ((LF.temperature(temperatureUnits::celsius)+RF.temperature(temperatureUnits::celsius)+LB.temperature(temperatureUnits::celsius)+RB.temperature(temperatureUnits::celsius))/4.0);
-        Brain.Screen.printAt(10,30,"avg drivebase motor temp = %.2f", f);
+        /*double f = ((LF.temperature(temperatureUnits::celsius)+RF.temperature(temperatureUnits::celsius)+LB.temperature(temperatureUnits::celsius)+RB.temperature(temperatureUnits::celsius))/4.0);
+        Brain.Screen.printAt(10,30,"avg drivebase motor temp = %.2f        ", f);*/
+        double lbtemp = LB.temperature(temperatureUnits::celsius);
+        double rbtemp = RB.temperature(temperatureUnits::celsius);
+        double lftemp = LF.temperature(temperatureUnits::celsius);
+        double rftemp = RF.temperature(temperatureUnits::celsius);
+        Brain.Screen.printAt(10,30,"Left Front Motor Temp = %.2f   ",lftemp);
+        Brain.Screen.printAt(10,50,"Right Front Motor Temp = %.2f   ",rftemp);
+        Brain.Screen.printAt(10,70,"Left Back Motor Temp = %.2f   ",lbtemp);
+        Brain.Screen.printAt(10,90,"Right Back Motor Temp = %.2f   ",rbtemp);
         //Controller1.Screen.print("angle = %.2f       ", gyro1.heading());
         if(Controller1.ButtonR1.pressing()){
             intakefwd(100);
