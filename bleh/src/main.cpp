@@ -42,11 +42,16 @@ void inchdrive(float target)
     LF.setPosition(0, rev);
     RF.setPosition(0, rev);
     float x = ((LF.position(rev) + RF.position(rev)) / 2) * M_PI * 4 * 3.0 / 2;
-    while (x < target)
+    float error = target - x;
+    float kp = 5;
+    while (fabs(error) > 0.5)
     {
-        drive(50, 50, 10);
+        error = target - x;
+        float speed = kp*error;
+        drive(speed, speed, 10);
         x = ((LF.position(rev) + RF.position(rev)) / 2) * M_PI * 4 * 3.0 / 2;
     }
+    Brain.Screen.printAt(0,120,"dist = %.2f     ", x);
     drivestop();
 }
 #include <iostream>
@@ -75,13 +80,22 @@ void turnTo(float angle)
 
 void autonomous()
 {
-    int x = 30;
-    while (true)
-    {
+    
+    int x = 60;
+    while(true){
+        inchdrive(-30);
         turnTo(x);
-        wait(500, msec);
-        x += 30;
+        wait(500,msec);
+        x += 60;
     }
+    
+    // int x = 30;
+    // while (true)
+    // {
+    //     turnTo(x);
+    //     wait(500, msec);
+    //     x += 30;
+    // }
     // turnTo(0);
     // inchdrive(100);
     // drive(-40,40,400);
