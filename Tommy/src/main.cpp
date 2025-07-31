@@ -37,6 +37,8 @@ void drivestop(brakeType mode = brake){
     RB.stop(mode);
 }
 
+int sign(float a){return (a<0?-1:1);}
+
 void stopintake(brakeType mode = brake){
     intake.stop(mode);
 }
@@ -53,14 +55,25 @@ void inchdrive(double target){
     LF.setPosition(0,rev);
     RF.setPosition(0,rev);
     double x = ((LF.position(rev)+RF.position(rev))/2) * M_PI * 4 * 3.0/2;
-    while(x<target){
-        drive(50,50,10);
+    double error = target - x;
+    double kp = 3;
+    double minSpeed = 10;
+    double maxSpeed = 50;
+    while(fabs(error)>0.2){
         x = ((LF.position(rev)+RF.position(rev))/2) * M_PI * 4 * 3.0/2;
+        error = target - x;
+        double speed = kp*error;
+        if(fabs(speed)<minSpeed){
+            speed = minSpeed*sign(speed);
+        }
+        if(fabs(speed)>maxSpeed){
+            speed = maxSpeed*sign(speed);
+        }
+        drive(speed,speed,10);
     }
+    Brain.Screen.printAt(0,120,"dist = %.2f      ",x);
     drivestop();
 }
-
-int sign(float a){return (a<0?-1:1);}
 
 void turnTo(double angle){
     double error = angle - gyro1.rotation();
@@ -82,22 +95,33 @@ void turnTo(double angle){
 }
 
 void autonomous(){
-    turnTo(90);
+    inchdrive(12);
     wait(500,msec);
-    turnTo(270);
+    turnTo(-45);
     wait(500,msec);
+    inchdrive(36*sqrt(2));
+    wait(500,msec);
+    turnTo(-135);
+    wait(500,msec);
+    inchdrive(36*sqrt(2));
+    wait(500,msec);
+    turnTo(-180);
+    wait(500,msec);
+    inchdrive(24);
+    wait(500,msec);
+    turnTo(-225);
+    inchdrive(36*sqrt(2));
+    turnTo(-315);
+    inchdrive(36*sqrt(2));
     turnTo(0);
+    inchdrive(12);
 }
 
 void drivercontrol(){
     while(true){
-        Controller1.Screen.setCursor(1,1);
-        /*
-        yaw
-        rotation
-        heading
-        */
-        Controller1.Screen.print("angle = %.2f       ", gyro1.heading());
+        double f = ((LF.temperature(temperatureUnits::celsius)+RF.temperature(temperatureUnits::celsius)+LB.temperature(temperatureUnits::celsius)+RB.temperature(temperatureUnits::celsius))/4.0);
+        Brain.Screen.printAt(10,30,"avg drivebase motor temp = %.2f", f);
+        //Controller1.Screen.print("angle = %.2f       ", gyro1.heading());
         if(Controller1.ButtonR1.pressing()){
             intakefwd(100);
         }else if(Controller1.ButtonR2.pressing()){
