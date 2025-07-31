@@ -44,10 +44,15 @@ void inchdrive(float target){
     LF.setPosition(0, rev);
     RF.setPosition(0, rev);
     float X = ((LF.position(rev)+RF.position(rev))/2) * M_PI*4 * 3.0/2;
-    while(X<target){
-        drive(30,30,10);
+    float error = target - X;
+    float kp = 5;
+    while(fabs(error)>0.5){
+        error = target - X;
+        float speed = kp*error;
+        drive(speed,speed,10);
         X = ((LF.position(rev)+RF.position(rev))/2) * M_PI * 4 * 3.0/2;
     }
+    Brain.Screen.printAt(0,120,"dist = %.2f     ",X);
     drivestop();
 }
 
@@ -74,7 +79,8 @@ void turnTo(float angle){
 }    
 
 void autonomous(){
-    turnTo(-90);
+    inchdrive(24);
+    inchdrive(-24);
 }
 
 void drivercontrol(){
@@ -83,6 +89,9 @@ void drivercontrol(){
     int t = 0;
 
     while(1) {
+      
+      int f = ((LF.temperature()+ RF.temperature()+ LB.temperature()+ RB.temperature())/4.0);
+      Brain.Screen.printAt(10,30,"avg motor temp = %d", f);
       Brain.Screen.drawCircle(X, Y, t/100, t%360);
       Brain.Screen.setPenColor(t%360);
       Controller.Screen.setCursor(1,1);
