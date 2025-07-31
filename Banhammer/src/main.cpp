@@ -24,7 +24,7 @@ motor LF = motor(PORT1, ratio18_1, true);
 motor RF = motor(PORT6, ratio18_1, false);
 motor LB = motor(PORT11, ratio18_1, true);
 motor RB = motor(PORT2, ratio18_1, false);
-
+motor SPINNER1 = motor(PORT7, ratio18_1, false);
 void drive(int lspeed,int rspeed, int wt){
     LF.spin(fwd,lspeed,pct);
     RF.spin(fwd,rspeed,pct);
@@ -101,6 +101,9 @@ void drivercontrol(){
       heading
       */
       Controller.Screen.print("angle = %.2f      ", gyro1.rotation());
+        SPINNER1.spin(fwd,100 * Controller.ButtonR1.pressing(),pct);
+    
+     
      t++;
      X+=Controller.ButtonRight.pressing()*2;
      Y+=Controller.ButtonDown.pressing()*2;
