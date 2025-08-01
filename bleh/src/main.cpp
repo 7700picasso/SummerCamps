@@ -55,24 +55,30 @@ void inchdrive(float target)
     drivestop();
 }
 #include <iostream>
+
+int sign(float a){return(a<0?-1:1);}
+
+
 void turnTo(float angle)
 {
     float error = angle - gyro1.rotation();
     float kp = 0.75;
-    while (fabs(error) > 1)
-    {
-        drive(error * kp, -error * kp, 10);
-        error = angle - gyro1.rotation();
+    float ki = 0.00;
+    float kd = 0.0;
+    float totalerror = 0;
+    float preverror = error;
 
-        while (error > 180)
+    while (fabs(error) > 3)
+    {
+        error = angle - gyro1.rotation();
+        while (fabs(error) > 180)
         {
-            error -= 360;
+            error -= 360 * sign(error);
         }
-        while (error < -180)
-        {
-            error += 360;
-        }
-        std::cout << error << std::endl;
+        float speed = error * kp + totalerror * ki + (error - preverror)* kd;
+        totalerror+=error;
+        preverror = error;
+        drive( speed, -speed, 10);
     }
     Brain.Screen.printAt(10, 100, "angle = %.2f", gyro1.rotation());
     drivestop();
@@ -80,13 +86,17 @@ void turnTo(float angle)
 
 void autonomous()
 {
-    
-    int x = 60;
-    while(true){
-        inchdrive(-30);
-        turnTo(x);
-        wait(500,msec);
-        x += 60;
+    inchdrive(48);
+    turnTo(-45);
+    inchdrive(24);
+    inchdrive(-24);
+    turnTo(-90);
+    inchdrive(48);
+    turnTo(10);
+    inchdrive(72);
+    turnTo(45);
+    inchdrive(24);
+
     }
     
     // int x = 30;
@@ -103,7 +113,7 @@ void autonomous()
     // inchdrive(24);
     // drive(-40,40,500);
     // drivestop();
-}
+
 
 void drivercontrol()
 {
