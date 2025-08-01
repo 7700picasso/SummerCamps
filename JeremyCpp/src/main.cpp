@@ -24,10 +24,10 @@ inertial gyro1 = inertial(PORT4);
 
 void drive(int lspeed, int rspeed, int wt)
 {
-    LF.spin(fwd, lspeed, pct);
-    RF.spin(fwd, rspeed, pct);
-    LB.spin(fwd, lspeed, pct);
-    RB.spin(fwd, rspeed, pct);
+    LF.spin(fwd, lspeed / 2, pct);
+    RF.spin(fwd, rspeed / 2, pct);
+    LB.spin(fwd, lspeed / 2, pct);
+    RB.spin(fwd, rspeed / 2, pct);
     wait(wt, msec);
 }
 
@@ -57,24 +57,32 @@ void inch_drive(float target)
     drivestop();
 }
 
+int sign(float a){return (a < 0? - 1:1);}
+
 void turnTo(float angle)
 {
-    float error = angle - gyro1.rotation();
-    float kpn = 0.6;
+
+    float error = (angle - 20) - gyro1.rotation();
+    float kp = 1;
+    float ki = 0.0;
+    float kd = 0.8;
+    float totalerror = 0;
+    float preverror = error;
+    
     while (fabs(error) > 3)
     {
-        drive(-error * kpn, error * kpn, 100);
         error = angle - gyro1.rotation();
-        while (error > 180)
+        while (fabs(error) > 180)
         {
-            error -= 360;
+            error -= 360 * sign(error);
         }
-        while (error < -180)
-        {
-            error += 360;
-        }
-        Brain.Screen.printAt(10, 100, "error = %.2f", error);
+        float speed = error * kp + totalerror * ki + (error - preverror) * kd;
+        totalerror += error;
+        Brain.Screen.printAt(10, 100, "error = %.2f",error);
+        preverror = error;
+        drive(-speed, speed, 10);
     }
+    
     drivestop();
     Brain.Screen.print("out of loop");
 }
@@ -82,23 +90,24 @@ void turnTo(float angle)
 
 void autonomous()
 {
-    int distance = 48;
-    inch_drive(distance);
-    turnTo(60);
-    inch_drive(distance);
-    turnTo(60 * 2);
-    inch_drive(distance);
-    turnTo(60 * 3);
-    inch_drive(distance);
-    turnTo(60 * 4);
-    inch_drive(distance);
-    turnTo(60 * 5);
-    inch_drive(distance);
-    turnTo(60 * 6);
-    
-    
+    inch_drive(24 * 2.85);
+    turnTo(-45);
+    inch_drive(24);
+    wait(200, msec);
+    inch_drive(-24);
+    // first ball in
+    turnTo(-90);
+    inch_drive(24 * 3);
+    turnTo(0);
+    inch_drive(24 * 3);
+    turnTo(270);
+    inch_drive(24);
+    wait(200, msec);
+    inch_drive(-24);
 
     
+
+
 }
 
 void drivercontrol()
