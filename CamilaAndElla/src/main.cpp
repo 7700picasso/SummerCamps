@@ -20,6 +20,7 @@ controller Controller;
 motor LeftMotor (PORT10, ratio18_1, false);
 motor RightMotor (PORT1, ratio18_1, true);
 motor intake(PORT2, ratio18_1, true);
+motor frontIntake(PORT21, ratio18_1, true);
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /* 
@@ -44,8 +45,8 @@ void inchdrive( float inches) {
   LeftMotor.setPosition(0,rev);
   float x = LeftMotor.position(rev) * 3.1415 * 4;
   float error = inches - x;
-  float accuracy = 0.2;
-  float kp = 6;
+  float accuracy = 0.5;
+  float kp = 4.5;
   while (fabs(error>accuracy))
   
   {
@@ -78,27 +79,27 @@ void pre_auton(void) {
 void autonomous(void) {
 //go straight to the blocks
 
-
-inchdrive(20);
-intake.spin(fwd, 100, pct);
+intake.spin(fwd, 36, pct);
+inchdrive(25);
+intake.stop();
 //intake the blocks
 
 
 //go backwards
-drive(-50, -50, 20);
+drive(-50, -50, 200);
 wait(500,msec);
 intake.stop();
 //turn 
-drive(-50, 50, 450);
+drive(-50, 50, 530);
 
 //go straight to line up with the goal 
 inchdrive(25); 
 
 //turn to the face the goal 
-drive(35, -35, 690); 
+drive(35, -35, 950); //690
 
 //go staright to get close to the goal 
-drive(50, 50, 490);
+drive(50, 50, 355);
 
 //outtake the block in your robot
 intake.spin(fwd, 100, pct); 
@@ -130,7 +131,15 @@ void usercontrol(void) {
       intake.stop();
     }
 
-
+if (Controller.ButtonL1.pressing()){
+     frontIntake.spin(forward, 100, pct);
+    }
+    else if (Controller.ButtonL2.pressing()){
+      frontIntake.spin(forward, -100, pct);
+    }
+    else {
+      frontIntake.stop();   
+    }
 
 
 
