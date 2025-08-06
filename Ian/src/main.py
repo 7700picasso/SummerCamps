@@ -13,10 +13,30 @@ from vex import *
 # Brain should be defined by default
 brain=Brain()
 controller = Controller()
-brain.screen.print("Hello V5")
 x_value = 240
 y_value = 135
 circles = [[240,135]]
+
+LB = Motor(Ports.PORT2,GearSetting.RATIO_18_1,True)
+LF = Motor(Ports.PORT3,GearSetting.RATIO_18_1,True)
+RB = Motor(Ports.PORT1,GearSetting.RATIO_18_1,False)
+RF = Motor(Ports.PORT6,GearSetting.RATIO_18_1,False)
+
+def drive(left , right,wt):
+    LB.spin(FORWARD,left,PERCENT)
+    RB.spin(FORWARD,right,PERCENT)
+    LF.spin(FORWARD,left,PERCENT)
+    RF.spin(FORWARD,left,PERCENT)
+    wait(wt,MSEC)
+
+def driveStop():
+    LF.stop(BRAKE)
+    LB.stop(BRAKE)
+    RF.stop(BRAKE)
+    RB.stop(BRAKE)
+
+
+
 while True:
     is_pressing = True
     if is_pressing:
@@ -44,8 +64,14 @@ while True:
             brain.screen.set_fill_color(Color.BLUE)
         elif x_value>240 and y_value>135:
             brain.screen.set_fill_color(Color.GREEN)    
-       
-        
+
+
+        left_stick = controller.axis3.position()    
+        right_stick = controller.axis2.position()
+        drive(left_stick,right_stick,10)
+        wait(20,MSEC)
+
+
         #brain.screen.set_fill_color(Color.GREEN)
        # brain.screen.set_pen_color(Color.BLUE)
         brain.screen.clear_screen()
