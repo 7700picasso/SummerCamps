@@ -15,8 +15,29 @@ brain=Brain()
 controller = Controller()
 brain.screen.print("Hello V5")
 
-x_value = 240
+x_value = 240   
 y_value = 135
+
+LB = Motor(Ports.PORT1,GearSetting.RATIO_18_1,False)
+RB = Motor(Ports.PORT2,GearSetting.RATIO_18_1,True)
+LF = Motor(Ports.PORT1,GearSetting.RATIO_18_1,True)
+RF = Motor(Ports.PORT2,GearSetting.RATIO_18_1,False)
+
+def drive(left,right,wt):
+    LB.spin(FORWARD,left,PERCENT)
+    RB.spin(FORWARD,right,PERCENT)
+    LF.spin(FORWARD,left,PERCENT)
+    RF.spin(FORWARD,right,PERCENT)
+    wait(wt,MSEC)
+
+
+
+def driveStop():
+    LF.stop(BRAKE)
+    RF.stop(BRAKE)
+    LB.stop(BRAKE)
+    RB.stop(BRAKE)
+
 
 while True:
     is_pressing = True
@@ -41,16 +62,11 @@ while True:
         else:
             brain.screen.set_fill_color(Color.RED)
 
+        left_stick = controller.axis3.position()
+        right_stick = controller.axis2.position()
+        drive(left_stick,right_stick,10)
+
         
-
-        # brain.screen.set_fill_color(Color.GREEN)
-        # brain.screen.set_fill_color(Color.BLUE)
-        # brain.screen.set_fill_color(Color.RED)        # brain.screen.set_fill_color(Color.YELLOW)
-
-        for circle in circles:
-            x = circle[0]
-            y = circle[1]
-        brain.screen.draw_circle(x_value,y_value,5)
         wait(20,MSEC)
 
         
