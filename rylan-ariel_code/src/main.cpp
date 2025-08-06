@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
-/*    Author:       student                                                   */
-/*    Created:      7/21/2025, 1:31:30 PM                                     */
+/*    Author:       rollingrobots                                             */
+/*    Created:      8/5/2025, 9:13:25 AM                                      */
 /*    Description:  V5 project                                                */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
@@ -13,46 +13,37 @@ using namespace vex;
 
 // A global instance of competition
 competition Competition;
+motor RM (PORT16, ratio18_1, false);
+motor LM (PORT11, ratio18_1, true);
+motor intake (PORT1, ratio18_1, false);
+motor roller (PORT21, ratio18_1, false);
+controller Controller;
+
 
 // define your global instances of motors and other devices here
-brain Brain;
-controller Controller;
-motor LM (PORT6, ratio18_1, false);
-motor RM (PORT1, ratio18_1, true);
-motor intake (PORT21, ratio18_1, true);
-motor roller (PORT15, ratio6_1, true);
 
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
-void drive(int Lspeed, int Rspeed, int waitTime) {
-  LM.spin(forward, Lspeed, pct);
-  RM.spin(forward, Rspeed, pct);
-  wait(waitTime, msec);
+
+void driveTrain(int rsp, int lsp, int wt) {
+
+  RM.spin(forward, rsp, pct);
+  LM.spin(forward, lsp, pct);
+  wait(wt, msec);
+
 }
 
-void driveStop(){
-  LM.stop(brake);
+void Stop(){
+
   RM.stop(brake);
+  LM.stop(brake);
+
 }
 
-void inchdrive( float inches) {
-  RM.setPosition(0,rev);
-  float x = RM.position(rev) * 3.1415926535897932384626 * 4;
-  float error = inches - x;
-  float accuracy = 0.2;
-  float kp = 5;
-  while(fabs(error) > accuracy){
-    float speed = kp*error;
-    drive(speed, speed, 10);
-    x = RM.position(rev) * 3.1415926535897932384626 * 4;
-    error = inches - x;
-    Brain.Screen.printAt(10, 50, "inches driven = %.2f", x);
-  }
-  Brain.Screen.printAt(10,70,"done");
-  driveStop();
-}
-/*---------------------------------------------------------------------------*/
+
+
+/*-----------------------------------EOF-------------------------------------*/
 
 void pre_auton(void) {
 
@@ -71,43 +62,24 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-inchdrive(31.5);
-drive(0, 100, 1000);
-driveStop();
-intake.spin(fwd, 100, pct);
-wait(5,sec);
-intake.stop(coast);
-inchdrive(-5);
+
+  driveTrain(50, 50, 3500);
+  driveTrain(50, -50, 400); 
+  driveTrain(50, 50, 2700);
+  driveTrain(50, -50, 300); 
+  driveTrain(50, 50, 3000);
+  driveTrain(50, -50, 300); 
+  driveTrain(50, 50, 2700);
 
 
-// inchdrive(30);
-// driveStop();
-// wait(1,sec);
-// drive(-25, 25, 685*2/3*2);
-// driveStop();
-// wait(1,sec);
-// inchdrive(18);
-// drive(100,100,500);
-// driveStop();
-// intake.spin(fwd, 100, pct);
-// driveStop();
 
-// roller.spin(fwd, 100, pct);
-// intake.spin(fwd,20, pct);
-// inchdrive(23);
-// roller.stop(coast);
-// roller.spin(fwd, 25, pct);
-// inchdrive(-17);
-// intake.stop(coast);
-// drive(50, -50, 550);
-// inchdrive(25);
-// drive(-50, 50, 645);
-// roller.stop(coast);
-// inchdrive(16);
-// intake.spin(fwd, 100, pct);
-// wait(5,sec);
-// intake.stop(coast);
-// driveStop();
+
+
+
+
+  Stop();
+
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -123,33 +95,31 @@ inchdrive(-5);
 void usercontrol(void) {
   // User control code here, inside the loop
   while (1) {
-    int Lspeed = Controller.Axis3.position(pct);
-    int Rspeed = Controller.Axis2.position(pct);
-    drive(Lspeed,Rspeed,10);
-  if (Controller.ButtonR1.pressing()){
-    intake.spin(fwd, 100, pct);
-  }
-  else if (Controller.ButtonR2.pressing()){
-    intake.spin(fwd, -100, pct);
-  }
-  else{
-    intake.stop(coast);
-  }
+    
+    int lsp = Controller.Axis3.position(pct);
+    int rsp = Controller.Axis2.position(pct);
 
-  if (Controller.ButtonL1.pressing()){
-    roller.spin(fwd, 100, pct);
-  }
-  else if (Controller.ButtonL2.pressing()){
-    roller.spin(fwd, -100, pct);
-  }
-  else{
-    roller.stop(coast);
-  }
+    driveTrain(rsp, lsp, 10);
 
+    if(Controller.ButtonR1.pressing()){
+      intake.spin(forward, 100, pct);
+    }
+    else if (Controller.ButtonR2.pressing()){
+      intake.spin(reverse, 100, pct);    
+    }
+    else if (Controller.ButtonL1.pressing()){
+      roller.spin(forward, 100, pct); 
+    }
+    else if (Controller.ButtonL2.pressing()){
+      roller.spin(reverse, 100, pct); 
+    }
+    else{
+      intake.stop(brake);
+      roller.stop(brake);
+    }
 
+    wait(20, msec); 
 
-    wait(20, msec); // Sleep the task for a short amount of time to
-                    // prevent wasted resources.
   }
 }
 
