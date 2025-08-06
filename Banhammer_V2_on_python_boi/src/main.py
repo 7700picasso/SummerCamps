@@ -14,6 +14,51 @@ from vex import *
 brain=Brain()
 controller = Controller()
 
+LF = Motor(Ports.PORT2,GearSetting.RATIO_18_1,True)
+RF = Motor(Ports.PORT9,GearSetting.RATIO_18_1,False)
+LB = Motor(Ports.PORT3,GearSetting.RATIO_18_1,True)
+RB = Motor(Ports.PORT11,GearSetting.RATIO_18_1,False)
+SP1 = Motor(Ports.PORT10,GearSetting.RATIO_6_1,False)
+
+
+def drive(left, right,wt):
+    LF.spin(FORWARD,left,PERCENT)
+    LB.spin(FORWARD,left,PERCENT)
+    RF.spin(FORWARD,right,PERCENT)
+    RB.spin(FORWARD,right,PERCENT)
+    wait(wt,MSEC)
+
+
+def driveStop():
+    LF.stop(BRAKE)
+    RF.stop(BRAKE)
+    LB.stop(BRAKE)
+    RB.stop(BRAKE)
+
+pi = 3.14
+wheel_diameter = 4
+gear_ratio = 3/2
+def inchDrive(inches):
+    x = 0
+    LF.set_position(0,TURNS)
+    x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
+    while x < inches:
+        drive(30,30,10)
+        x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
+        brain.screen.print_at("inches = ",x,x=0,y=40)
+    driveStop()
+
+
+
+
+
+
+
+
+
+
+
+
 #brain.screen.draw_circle(100,100,10)
 brain.screen.print("Hello V5")
 brain.screen.print("I AM JOE")
@@ -53,6 +98,10 @@ while True:
         else:
             brain.screen.set_fill_color(Color.GREEN)
         brain.screen.draw_circle(circle[0],circle[1],10) 
+    
+    left_stick = controller.axis3.position()
+    right_stick = controller.axis2.position()
+    drive(left_stick,right_stick,10)
     wait(20,MSEC)
 
 
