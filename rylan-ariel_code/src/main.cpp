@@ -15,9 +15,10 @@ using namespace vex;
 competition Competition;
 motor RM (PORT16, ratio18_1, false);
 motor LM (PORT11, ratio18_1, true);
-motor intake (PORT1, ratio18_1, false);
+motor intake (PORT2, ratio18_1, false);
 motor roller (PORT21, ratio18_1, false);
 controller Controller;
+brain Brain;
 
 
 // define your global instances of motors and other devices here
@@ -38,6 +39,27 @@ void Stop(){
 
   RM.stop(brake);
   LM.stop(brake);
+
+}
+
+void inch(float inches) {
+  LM.setPosition(0, rev);
+  float x = LM.position(rev) * M_PI * 3.25 * 1.66666667;
+  float kP = 1.6;
+  float error = inches - x;
+  float speed = 0.0;
+  
+
+
+  while(fabs(error) > 1){
+    speed = kP * error;
+    driveTrain(speed, speed, 30);
+    x = LM.position(rev) * M_PI * 3.25 * 1.66666667;
+    error = inches - x;
+  }
+
+  Stop();
+  Brain.Screen.printAt(10, 20, "distance = %0.2f", x);
 
 }
 
@@ -62,23 +84,13 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
+intake.spin(forward, 100, pct);
+inch(30);
+wait(20, msec);
+inch(-10);
+driveTrain(-50, 50, 200);
 
-  driveTrain(50, 50, 3500);
-  driveTrain(50, -50, 400); 
-  driveTrain(50, 50, 2700);
-  driveTrain(50, -50, 300); 
-  driveTrain(50, 50, 3000);
-  driveTrain(50, -50, 300); 
-  driveTrain(50, 50, 2700);
-
-
-
-
-
-
-
-  Stop();
-
+Stop();
 
 }
 
@@ -92,7 +104,7 @@ void autonomous(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void usercontrol(void) {
+void tank_drive(void) {
   // User control code here, inside the loop
   while (1) {
     
@@ -123,13 +135,44 @@ void usercontrol(void) {
   }
 }
 
+void arcade(void) {
+ while (1) {
+  int forwardY = Controller.Axis3.position(pct);
+  int sideX = Controller.Axis1.position(pct);
+
+  driveTrain(forwardY - sideX, forwardY + sideX, 10);
+
+if(Controller.ButtonR1.pressing()){
+      intake.spin(forward, 100, pct);
+    }
+    else if (Controller.ButtonR2.pressing()){
+      intake.spin(reverse, 100, pct);    
+    }
+    else if (Controller.ButtonL1.pressing()){
+      roller.spin(forward, 100, pct); 
+    }
+    else if (Controller.ButtonL2.pressing()){
+      roller.spin(reverse, 100, pct); 
+    }
+    else{
+      intake.stop(brake);
+      roller.stop(brake);
+    }
+
+    wait(20, msec); 
+ }
+}
+
 //
 // Main will set up the competition functions and callbacks.
 //
 int main() {
   // Set up callbacks for autonomous and driver control periods.
   Competition.autonomous(autonomous);
-  Competition.drivercontrol(usercontrol);
+    Competition.drivercontrol(arcade);
+// Competition.drivercontrol(tank_drive);
+
+  
 
   // Run the pre-autonomous function.
   pre_auton();
