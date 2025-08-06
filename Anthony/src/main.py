@@ -37,6 +37,21 @@ def driveStop():
     RF.stop(BRAKE)
     LB.stop(BRAKE)
     RB.stop(BRAKE)
+pi = 3.14
+wheel_diameter = 4
+gear_ratio = 3/2
+def inchDrive(inches):
+    x=0
+    LF.set_position(0, TURNS)
+    x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
+    while x < inches:
+        drive(50,50,10)
+        x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
+        brain.screen.print_at("inches = ",x,x=0,y=40)
+    driveStop()
+
+
+inchDrive(24)
 
 
 while True:
