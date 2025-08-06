@@ -16,6 +16,7 @@ competition Competition;
 
 
 controller Controller;
+brain Brain;
 
 
 // define your global instances of motors and other devices here
@@ -37,6 +38,28 @@ void stopRobot(){
   LM.stop(brake);
 }
 
+void  inchDrive(float inches){
+  LM.setPosition(0, rev);
+  float x = LM.position(rev) * M_PI * 4 * 1;
+  float kP = 1.5;
+  float error = inches - x;
+  float speed = 0.0;
+
+    
+
+
+  while (x < error ){
+    speed = kP * error;
+    driveTrain(speed, speed, 30);
+    x = LM.position(rev) * M_PI * 4 * 1;
+
+  }
+  stopRobot();
+  Brain.Screen.printAt(200,135, "distance = %0.2f", x);
+
+
+}
+
 /*---------------------------------EDF------------------------------------------*/
 
 void pre_auton(void) {
@@ -55,18 +78,21 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void autonomous(void) {
-  LM.spin(fwd,12,volt);
-  // ..........................................................................
-  driveTrain(100, 200, 2120);
-  wait(100, msec);
-  driveTrain(20,0, 1000);
-
-
+void autonomous(void){
+  intake.spin(forward, 50, volt);
+  inchDrive(36);
+  wait(250,msec);
+  intake.stop(); 
+  inchDrive(-2);
+  driveTrain(35, -35, 1000);
   stopRobot();
+  // intake.spin(reverse, 100, volt);
+  
+    
+
+}
 
   // ..........................................................................
-}
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
@@ -82,10 +108,14 @@ void usercontrol(void) {
   // User control code here, inside the loop
   while (1) {
     
-    int lspeed = Controller.Axis3.position(pct);
-    int rspeed = Controller.Axis2.position(pct);
+    //int lspeed = Controller.Axis3.position(pct);
+    //int rspeed = Controller.Axis2.position(pct);
 
-    driveTrain(rspeed,lspeed,10);
+    //driveTrain(rspeed,lspeed,10);
+
+    int forwardY = Controller.Axis3.position(pct);
+    int sideX = Controller.Axis1.position(pct);
+    driveTrain(forwardY - sideX, forwardY + sideX, 10);
     
     if (Controller.ButtonR1.pressing()){
       intake.spin(forward, 100, pct);
