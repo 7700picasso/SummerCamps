@@ -22,7 +22,8 @@ brain Brain;
 // define your global instances of motors and other devices here
 motor LM (PORT14, ratio18_1, false); 
 motor RM (PORT2, ratio18_1, true); 
-motor intake(PORT9, ratio18_1, false); 
+motor intake(PORT17, ratio18_1, false); 
+motor intake2(PORT7, ratio18_1, false);
 
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -79,12 +80,8 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void){
-  intake.spin(forward, 50, volt);
-  inchDrive(36);
-  wait(250,msec);
-  intake.stop(); 
-  inchDrive(-2);
-  driveTrain(35, -35, 1000);
+
+  driveTrain(45, -45, 1000);
   stopRobot();
   // intake.spin(reverse, 100, volt);
   
@@ -123,9 +120,19 @@ void usercontrol(void) {
     else if (Controller.ButtonR2.pressing()){
       intake.spin(reverse, 100, pct);
     }
+    else if (Controller.ButtonL1.pressing()){
+      intake2.spin(forward, 100, pct);
+      intake.spin(forward, 50, pct);
+    }
+    else if (Controller.ButtonL2.pressing()){
+      intake2.spin(reverse, 100, pct);
+      intake.spin(reverse, 50, pct);
+    }
     else {
       intake.stop(brake);
+      intake2.stop(brake);
     }
+
 
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
