@@ -42,12 +42,12 @@ void stopRobot() {
 void inchDrive(float inches) {
   LM.setPosition(0, rev);
   float x = LM.position(rev) * M_PI * 4 * 1 ;
-  float kP = 5;
+  float kP = 2.14159;
   float error = inches - x;
   float speed = 0.0;
 
 
-  while( error > 0.5 ) {
+  while( fabs(error) > 0.5 ) {
     speed = kP * error;
     driveTrain(speed, speed, 30);
     x = LM.position(rev) * M_PI * 4 * 1;
@@ -61,7 +61,7 @@ void inchDrive(float inches) {
 void pre_auton(void) {
 
   // All activities that occur before the competition starts
-  // Example: clearing encoders, setting servo positions, ...
+  // Example: clearing encoderxxdss, setting servo positions, ...
 }
 
 /*---------------------------------------------------------------------------*/
@@ -76,16 +76,22 @@ void pre_auton(void) {
 
 void autonomous(void) {
   // ..........................................................................
-  intake.spin(reverse, 100, pct);
-  inchDrive(36);
-  driveTrain(50, -50, 300);
-  inchDrive(5);
-  driveTrain(50, -50, 340);
-  intake.stop();
-  inchDrive(25);
-  driveTrain(-50, 50, 340);
-  inchDrive(10);
-  driveTrain(-50, 50, 340);
+  intake.spin(forward, 30, pct);
+  leftintake.spin(forward,100, pct);
+  rightintake.spin(forward,100,pct);
+  inchDrive(33);
+  driveTrain(50, -50, 410);
+  inchDrive(2);
+  wait(1000, msec);
+  intake.spin(reverse, 0 ,pct);
+  leftintake.spin(reverse, 0 ,pct);
+  rightintake.spin(reverse, 0 ,pct);
+  inchDrive(-10);
+  driveTrain(50, -50, 850);
+  inchDrive(13); 
+  intake.spin(forward, 90, pct);
+  wait(10000, msec);
+  intake.spin(reverse, 0 ,pct);
   stopRobot();
 
   // ..........................................................................
