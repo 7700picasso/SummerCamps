@@ -17,6 +17,7 @@ LB = Motor(Ports.PORT2,GearSetting.RATIO_18_1,True)
 LF = Motor(Ports.PORT3,GearSetting.RATIO_18_1,True)
 RB = Motor(Ports.PORT1,GearSetting.RATIO_18_1,False)
 RF = Motor(Ports.PORT6,GearSetting.RATIO_18_1,False)
+gyro = Inertial(Ports.PORT4)
 
 
 
@@ -58,12 +59,31 @@ def inchDrive(inches):
 
 
 def autonomous():
+    gyro.calibrate()
+    while gyro.is_calibrating():
+        wait(20,MSEC)
     inchDrive(72)
-    drive(-50,50,500)
+    drive(-40,40,500)
     inchDrive(72)
-    drive(-50,50,500)
+    drive(-40,40   ,500)
     inchDrive(72)
 
+
+
+def turnTo(angle):
+    error = angle - gyro.rotation()
+    kp = 5
+    timer = Timer()
+    while abs(error)>2 or timer.time(MSEC)>2000:
+        error = angle - gyro.rotation()
+        if error>180:
+            error = 360 - error
+        if error<-180:
+            error = 360 + error
+        brain.screen.print_at("error = ",error,x=0,y=40)
+        drive(kp*error,-kp*error,20)
+    brain.screen.print_at("done.                 ",x=0,y=40)
+    driveStop()
 
  
 def drivercontrol():
