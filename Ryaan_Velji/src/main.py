@@ -32,6 +32,23 @@ def drive(left, right, wt):
     RB.spin(FORWARD,right,PERCENT)
     LF.spin(FORWARD,left,PERCENT)
     RF.spin(FORWARD,right,PERCENT)
+    wait(wt)
+gyro = Inertial(Ports.PORT17)
+
+def turnTo(angle):
+    error = angle - gyro.rotation()
+    kp = 5
+    timer = Timer()
+    while abs(error)>2 or timer.time(MSEC)>2000:
+        error = angle - gyro.rotation()
+        if error>180:
+            error = 360 - error
+        if error<=180:
+            error = 360 + error
+        brain.screen.print_at("error = ",error,x = 0,y = 40)
+        drive(kp*error,-kp*error,20)
+    brain.screen.print_at("done.                                    ",x = 0,y =40)
+    driveStop()
 
 def driveStop():
     LF.stop(BRAKE)
@@ -51,16 +68,29 @@ def inchDrive(inches):
         drive(50,50,10)
         x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
         brain.screen.print_at("inches = ", x, x = 0, y = 40)
-    driveStop
+    driveStop()
+    brain.screen.print_at("done",x=0,y=40)
 
-inchDrive(24)
 
-while True:
-    is_pressing = True 
-    if is_pressing:
+
+
+def autonomous():
+    gyro.calibrate()
+    while gyro.is_calibrating():
+        wait(20,MSEC)
+    inchDrive(56)
+    wait(1,SECONDS)
+    turnTo(-90)
+    driveStop()
+    inchDrive(78)
+    wait(1,SECONDS)
+    turnTo(180)
+    driveStop()
+    inchDrive(55)
+
+def drivercontroll():
+    while True:
         #brain.screen.clear_screen()
-        
-
         if controller.buttonUp.pressing():
             y_value-=3
         if controller.buttonDown.pressing():
@@ -70,19 +100,12 @@ while True:
         if controller.buttonLeft.pressing():
             x_value-=3 
         
-        
-        if(len(circles)>90):
-            circles = circles[1:90]
-        circles.append([x_value, y_value])
+        # if(len(circles)>90):
+        #     circles = circles[1:90]
+        # circles.append([x_value, y_value])
 
-
-        
         #brain.screen.print_at("Touch at: ",x_value,y_value,x = x_value,y = y_value,sep = " ")
         
-        
-        
-
-
         brain.screen.set_pen_color(Color.BLACK)
 
         brain.screen.clear_screen()
@@ -99,7 +122,6 @@ while True:
             else:
                 brain.screen.set_fill_color(Color.GREEN)
             
-            
             brain.screen.draw_circle(circle[0], circle[1], 10)
         
         left_stick = controller.axis3.position()
@@ -107,6 +129,8 @@ while True:
         drive(left_stick, right_stick, 10)
 
         wait(20,MSEC)
+
+comp = Competition(drivercontroll,autonomous)
 
         
 
