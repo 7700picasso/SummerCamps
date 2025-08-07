@@ -13,21 +13,13 @@ from vex import *
 # Brain should be defined by default
 brain=Brain()
 controller = Controller()
+LB = Motor(Ports.PORT2,GearSetting.RATIO_18_1,True)
+LF = Motor(Ports.PORT3,GearSetting.RATIO_18_1,True)
+RB = Motor(Ports.PORT1,GearSetting.RATIO_18_1,False)
+RF = Motor(Ports.PORT6,GearSetting.RATIO_18_1,False)
 
-pi = 3.14
-wheel_diameter = 4
-gear_ratio = 3/2
-def inchDrive(inches):
-    x = 0   
-    LF.set_position(0,TURNS)
-    x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
-    while x < inches:
-       drive(50,50,10)
-       x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
-       brain.screen.print_at("inches = ",x,x=0,y=40)
-    driveStop()
 
-inchDrive(24)
+
 
 
 
@@ -35,10 +27,7 @@ x_value = 240
 y_value = 135
 circles = [[240,135]]
 
-LB = Motor(Ports.PORT2,GearSetting.RATIO_18_1,True)
-LF = Motor(Ports.PORT3,GearSetting.RATIO_18_1,True)
-RB = Motor(Ports.PORT1,GearSetting.RATIO_18_1,False)
-RF = Motor(Ports.PORT6,GearSetting.RATIO_18_1,False)
+
 
 def drive(left , right,wt):
     LB.spin(FORWARD,left,PERCENT)
@@ -53,11 +42,35 @@ def driveStop():
     RF.stop(BRAKE)
     RB.stop(BRAKE)
 
+pi = 3.14
+wheel_diameter = 4
+gear_ratio = 3/2
+def inchDrive(inches):
+    x = 0   
+    LF.set_position(0,TURNS)
+    x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
+    while x < inches:
+       drive(50,50,10)
+       x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
+       brain.screen.print_at("inches = ",x,x=0,y=40)
+    driveStop()
 
 
-while True:
-    is_pressing = True
-    if is_pressing:
+
+def autonomous():
+    inchDrive(72)
+    drive(-50,50,500)
+    inchDrive(72)
+    drive(-50,50,500)
+    inchDrive(72)
+
+
+ 
+def drivercontrol():
+
+
+
+ while True:
         #brain.screen.clear_screen()
         if controller.buttonUp.pressing():
             y_value-=5
@@ -68,20 +81,18 @@ while True:
         if controller.buttonRight.pressing():
             x_value+=5
 
-        if(len(circles)>100):   
-            circles = circles[1:100]
-        circles.append([x_value,y_value])         
+       ###circles.append([x_value,y_value])         
 
         #brain.screen.print_at("Touch at:",x_value,y_value,x=x_value,y=y_value,sep = "")
         
-        if x_value<240 and y_value<135:
-            brain.screen.set_fill_color(Color.RED)
-        elif x_value>240 and y_value<135:
-            brain.screen.set_fill_color(Color.YELLOW)
-        elif x_value<240 and y_value>135:
-            brain.screen.set_fill_color(Color.BLUE)
-        elif x_value>240 and y_value>135:
-            brain.screen.set_fill_color(Color.GREEN)    
+        # if x_value<240 and y_value<135:
+        #     brain.screen.set_fill_color(Color.RED)
+        # elif x_value>240 and y_value<135:
+        #     brain.screen.set_fill_color(Color.YELLOW)
+        # elif x_value<240 and y_value>135:
+        #     brain.screen.set_fill_color(Color.BLUE)
+        # elif x_value>240 and y_value>135:
+        #     brain.screen.set_fill_color(Color.GREEN)    
 
 
         left_stick = controller.axis3.position()    
@@ -106,6 +117,10 @@ while True:
                 brain.screen.set_fill_color(Color.GREEN)
             brain.screen.draw_circle(circle[0],circle[1],10)
         wait(20,MSEC)    
+
+
+
+comp = Competition(drivercontrol,autonomous)
         
         #brain.screen.draw_circle(x_value,y_value,20)
 
