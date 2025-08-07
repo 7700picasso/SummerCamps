@@ -45,10 +45,10 @@ void inchdrive(float target){
     RF.setPosition(0, rev);
     float X = ((LF.position(rev)+RF.position(rev))/2) * M_PI*4 * 3.0/2;
     float error = target - X;
-    float kp = 5;
+    float kp2 = 5;
     while(fabs(error)>0.5){
         error = target - X;
-        float speed = kp*error;
+        float speed = kp2*error;
         drive(speed,speed,10);
         X = ((LF.position(rev)+RF.position(rev))/2) * M_PI * 4 * 3.0/2;
     }
@@ -60,27 +60,38 @@ int sign(float a){return (a<0?-1:1);}
 
 void turnTo(float angle){
     float error = angle - gyro1.rotation();
-    float kp = 0.75;
-    float maxSpeed = 25;
-    while(fabs(error) >3){
-        float speed = error*kp;
-        if(fabs(speed)>maxSpeed){
-            speed = maxSpeed*sign(speed);
-        }
-        
-        drive(speed,-speed,10);
+    float kp = 0.55;
+    float ki = 0.000;
+    float kd = 0.4;
+    float totalerror = 0;
+    float preverror = error;
+
+    while(fabs(error) >1){
         error = angle - gyro1.rotation();
         while(fabs(error)>180){
             error-=360 * sign(error);
         }
-    }
+        float speed = error*kp + totalerror * ki + (error-preverror) * kd;
+        preverror = error;
+        totalerror+=error;
+        drive(speed,-speed,10);
+        }
+    
     Brain.Screen.printAt(10,100,"angle  = %2f  ",gyro1.rotation());
+    preverror=error;
     drivestop();
 }    
 
 void autonomous(){
-    inchdrive(24);
-    inchdrive(-24);
+    SPINNER1.spin(reverse);
+    inchdrive(26);
+    turnTo(-90);
+    drivestop();
+    inchdrive(25);
+    drivestop();
+    wait(400, msec);
+    inchdrive(-28);
+    drivestop();
 }
 
 void drivercontrol(){
@@ -101,9 +112,8 @@ void drivercontrol(){
       heading
       */
       Controller.Screen.print("angle = %.2f      ", gyro1.rotation());
-        SPINNER1.spin(fwd,100 * Controller.ButtonR1.pressing(),pct);
-    
-     
+        SPINNER1.spin(fwd,100 * Controller.ButtonR1.pressing() - 100 * Controller.ButtonL1.pressing(),pct);
+        
      t++;
      X+=Controller.ButtonRight.pressing()*2;
      Y+=Controller.ButtonDown.pressing()*2;
