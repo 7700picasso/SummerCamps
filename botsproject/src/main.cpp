@@ -80,8 +80,18 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void){
-
-  driveTrain(45, -45, 1000);
+  intake.spin(forward, 100, pct);
+  intake2.spin(forward, 90, pct);
+  inchDrive(27);
+  intake.stop();
+  intake2.stop();
+  wait(1500, msec);
+  driveTrain(50, -50, 430);
+  stopRobot();
+  inchDrive(12);
+  intake2.spin(reverse, 80, pct);
+  intake.spin(reverse, 50, pct);
+  wait(1000, msec);
   stopRobot();
   // intake.spin(reverse, 100, volt);
   
