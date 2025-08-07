@@ -147,10 +147,16 @@ void usercontrol(void)
 {
   // User control code here, inside the loop
 while (1) {
+<<<<<<< Updated upstream
   Brain.Screen.printAt(1,15,"Hi Ohio");
 int lstick=(Controller1.Axis3.position());
 int rstick=(Controller1.Axis2.position());
 drive(-lstick,-rstick,10);
+=======
+int lstick= (Controller1.Axis3.position()/ 3) ;
+int rstick= (Controller1.Axis2.position() / 3);
+drive(lstick,rstick,10);
+>>>>>>> Stashed changes
 if(Controller1.ButtonR1.pressing())
 {
   intake.spin(fwd,100,pct);
