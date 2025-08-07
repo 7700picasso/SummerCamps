@@ -22,6 +22,9 @@ LB = Motor(Ports.PORT1,GearSetting.RATIO_18_1,False)
 RB = Motor(Ports.PORT2,GearSetting.RATIO_18_1,True)
 LF = Motor(Ports.PORT1,GearSetting.RATIO_18_1,True)
 RF = Motor(Ports.PORT2,GearSetting.RATIO_18_1,False)
+gyro = Inertial(Ports.PORT10)
+
+
 
 def drive(left,right,wt):
     LB.spin(FORWARD,left,PERCENT)
@@ -50,32 +53,51 @@ def inchDrive(inches):
         brain.screen.print_at("inches = ",x,x=0,y=40)
     driveStop()
 
+def turnTo(angle):
+    error  = angle - gyro.rotation()
+    kp = 5
+    timer = Timer()
+    while abs(error)>2 or timer.time(MSEC)>2000:        
+        error = angle - gyro.rotation()
+        if error>180:
+            error = 360 -error
+        if error<-180:
+            error = 360 + error
+            brain.screen.print_at("error =", error,x=0,y=40)
+        drive(kp*error,-kp*error,20)
+        brain.screen.print_at("done.",x=0,y=40)
+    driveStop()
+        
+        
+def autonomous():
+    gyro.calibrate()
+    while gyro.is_calibrating():
+        wait(20, MSEC)
+    inchDrive(24)
+    turnTo(-90)
 
-inchDrive(24)
 
-
-while True:
-    is_pressing = True
-    if is_pressing:
+def drivercontrol():
+    while True:
         #brain.screen.clear_screen()
-        if controller.buttonUp.pressing():
-            y_value-=5
-        if controller.buttonDown.pressing():
-            y_value+=5
-        if controller.buttonLeft.pressing():
-            x_value-=5
-        if controller.buttonRight.pressing():
-            x_value+=5
+        # if controller.buttonUp.pressing():
+        #     y_value-=5
+        # if controller.buttonDown.pressing():
+        #     y_value+=5
+        # if controller.buttonLeft.pressing():
+        #     x_value-=5
+        # if controller.buttonRight.pressing():
+        #     x_value+=5
        #brain.screen.print_at("Touch at:", x_value,y_value,x=x_value,y=y_value,sep = " ")
 
-        if y_value<135 and x_value>240:
-            brain.screen.set_fill_color(Color.YELLOW)
-        elif y_value>135 and x_value<240:
-            brain.screen.set_fill_color(Color.BLUE)
-        elif y_value>135 and x_value>240:
-            brain.screen.set_fill_color(Color.GREEN)
-        else:
-            brain.screen.set_fill_color(Color.RED)
+        # if y_value<135 and x_value>240:
+        #     brain.screen.set_fill_color(Color.YELLOW)
+        # elif y_value>135 and x_value<240:
+        #     brain.screen.set_fill_color(Color.BLUE)
+        # elif y_value>135 and x_value>240:
+        #     brain.screen.set_fill_color(Color.GREEN)
+        # else:
+        #     brain.screen.set_fill_color(Color.RED)
 
         left_stick = controller.axis3.position()
         right_stick = controller.axis2.position()
@@ -83,5 +105,10 @@ while True:
 
         
         wait(20,MSEC)
+
+
+
+
+comp = Competition(drivercontrol,autonomous)
 
         
