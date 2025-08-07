@@ -80,16 +80,61 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void autonomous(void) {
-  Brain.Screen.print("Code running");
+void left_auto(void) {
+  Brain.Screen.print("Code running: Left auto");
+  
   intake.spin(forward, 100, pct);
-  Inch(36);
+  Inch(35);
   intake.stop();
-  Inch(-10);
-  driveTrain(-50, 50, 450);
-
+  Inch(-30);
+  driveTrain(50, -50, 230);
+  Inch(34);
+  driveTrain(-50, 50, 480);
+  Inch(22);
+  roller.spin(forward, 70, pct);
+  intake.spin(forward, 70, pct);
+  wait(3500, msec);
+  roller.stop();
+  intake.stop();
+ 
   Stop();
 
+
+}
+
+
+
+void right_auto(void) {
+  Brain.Screen.print("Code running: Right auto");
+  
+  intake.spin(forward, 100, pct);
+  Inch(35);
+  intake.stop();
+  Inch(-30);
+  driveTrain(-50, 50, 230);
+  Inch(34);
+  driveTrain(50, -50, 480);
+  Inch(22);
+  roller.spin(forward, 70, pct);
+  intake.spin(forward, 70, pct);
+  wait(3500, msec);
+  roller.stop();
+  intake.stop();
+ 
+  Stop();
+
+
+}
+
+
+void center_goal(void){
+  Brain.Screen.print("Code running: Center");
+
+  intake.spin(forward, 100, pct);
+  Inch(35);
+  intake.stop();
+  Inch(-10);
+  driveTrain(50, -50, 230);
 
 }
 
@@ -139,6 +184,8 @@ void tank_control(void) {
 
 void arcade(void) {
 
+Brain.Screen.print("Code running: Arcade");
+while(1){
 int forwardY = Controller.Axis3.position(pct);
 int sideX = Controller.Axis1.position(pct);
 driveTrain(forwardY - sideX, forwardY + sideX, 10);
@@ -163,13 +210,20 @@ wait(20, msec);
 
 }
 
+
+
+}
+
 //
 // Main will set up the competition functions and callbacks.
 //
 int main() {
   // Set up callbacks for autonomous and driver control periods.
-  Competition.autonomous(autonomous);
-  Competition.drivercontrol(tank_control);
+  Competition.autonomous(right_auto);
+
+  Competition.drivercontrol(arcade);
+
+
 
 
   
