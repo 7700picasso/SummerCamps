@@ -2,7 +2,7 @@
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
 /*    Author:       student                                                   */
-/*    Created:      7/21/2025, 1:32:03 PM                                     */
+/*    Created:      8/5/2025, 9:14:00 AM                                      */
 /*    Description:  V5 project                                                */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
@@ -13,52 +13,56 @@ using namespace vex;
 
 // A global instance of competition
 competition Competition;
+motor RM (PORT3, ratio18_1, true);
+motor LM (PORT2, ratio18_1, false);
+motor intake (PORT20, ratio18_1, false);
+controller Jaquavius;
+brain Brain;
+
 
 // define your global instances of motors and other devices here
-brain Brain; 
-controller Controller;
-motor LeftMotor (PORT10, ratio18_1, false);
-motor RightMotor (PORT1, ratio18_1, true);
-motor intake(PORT2, ratio18_1, true);
-motor frontIntake(PORT21, ratio18_1, true);
+
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
-/* 
+/*                                                                           */
 
- 
-                                                                    
+void driveTrain(int rspeed, int lspeed, int waitTime) {
+
+RM.spin(forward, rspeed, pct ); 
+LM.spin(forward, lspeed, pct);
+wait(waitTime, msec); 
+
+}
+
+void stopRobot(){
+
+  RM.stop(brake);
+LM.stop(brake);
+
+}
+
+void inchDrive(float inches) {
+LM.setPosition(0, rev);  
+float x = LM.position(rev) * M_PI * 4 * 1;
+float kP = 4;
+float error = inches - x;
+float speed = 0.0;
+
+while (fabs(error) > 0.5 ) {
+  speed = kP * error;
+driveTrain(speed, speed, 30);
+x = LM.position(rev) * M_PI * 4 * 1;
+error = inches - x;
+}
+stopRobot();
+Brain.Screen.printAt(10, 20, "distance = %0.2f", x);
+
+}
+
+
+
+
 /*---------------------------------------------------------------------------*/
-
-void drive(int Lspeed, int Rspeed, int waitTime){
-LeftMotor.spin(forward, Lspeed, pct);
-RightMotor.spin(forward, Rspeed, pct);
- wait(waitTime, msec); 
-
-}
-void DriveStop(){
-LeftMotor.stop(brake);
-RightMotor.stop(brake);
-
-}
-
-void inchdrive( float inches) {
-  LeftMotor.setPosition(0,rev);
-  float x = LeftMotor.position(rev) * 3.1415 * 4;
-  float error = inches - x;
-  float accuracy = 0.5;
-  float kp = 4.5;
-  while (fabs(error>accuracy))
-  
-  {
-    float speed = kp*error;
-    drive(speed, speed, 10);
-    x = LeftMotor.position(rev) * 3.1415 * 4;
-    error = inches - x;
-    Brain.Screen.printAt(10,50,"inches = %.2f",x);
-  }
-  Brain.Screen.printAt(10,70,"done");
-  DriveStop();
-}
 
 void pre_auton(void) {
 
@@ -77,34 +81,21 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-//go straight to the blocks
+  // ..........................................................................
+intake.spin(reverse, 35, pct);
+  inchDrive(40);
+  wait(1000, msec);
+  intake.stop();
+inchDrive(-30);
+driveTrain(-50, 50, 300);
+stopRobot();
+inchDrive(30);
+stopRobot();
 
-intake.spin(fwd, 36, pct);
-inchdrive(25);
-intake.stop();
-//intake the blocks
 
-
-//go backwards
-drive(-50, -50, 200);
-wait(500,msec);
-intake.stop();
-//turn 
-drive(-50, 50, 530);
-
-//go straight to line up with the goal 
-inchdrive(25); 
-
-//turn to the face the goal 
-drive(35, -35, 950); //690
-
-//go staright to get close to the goal 
-drive(50, 50, 355);
-
-//outtake the block in your robot
-intake.spin(fwd, 100, pct); 
-
+  // ..........................................................................
 }
+
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /*                              User Control Task                            */
@@ -118,34 +109,21 @@ intake.spin(fwd, 100, pct);
 void usercontrol(void) {
   // User control code here, inside the loop
   while (1) {
-    int Lspeed = Controller.Axis3.position(pct);
-    int Rspeed = Controller.Axis2.position(pct);
-    drive(Lspeed, Rspeed, 10);
-    if (Controller.ButtonR1.pressing()){
-      intake.spin(forward, 100, pct);
-    }
-    else if (Controller.ButtonR2.pressing()){
-      intake.spin(forward, -100, pct);
-    }
-    else {
-      intake.stop();
-    }
+    
+int forwardY = Jaquavius.Axis3.position(pct); 
+int sideX = Jaquavius.Axis1.position(pct);
+driveTrain(forwardY - sideX, forwardY + sideX, 10);
+ 
 
-if (Controller.ButtonL1.pressing()){
-     frontIntake.spin(forward, 100, pct);
-    }
-    else if (Controller.ButtonL2.pressing()){
-      frontIntake.spin(forward, -100, pct);
-    }
-    else {
-      frontIntake.stop();   
-    }
+if (Jaquavius.ButtonR1.pressing()){
 
-
-
-
-
-
+  intake.spin(forward, 100, pct);
+}
+else if (Jaquavius.ButtonR2.pressing()){
+  intake.spin(reverse, 100, pct);
+}
+else {intake.stop(brake);
+}
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
   }

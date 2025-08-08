@@ -37,15 +37,15 @@ void driveStop(){
 }
 
 void inchdrive( float inches) {
-  LM.setPosition(0,rev);
-  float x = LM.position(rev) * 3.1415926535897932384626 * 4;
+  RM.setPosition(0,rev);
+  float x = RM.position(rev) * 3.1415926535897932384626 * 4;
   float error = inches - x;
   float accuracy = 0.2;
   float kp = 5;
   while(fabs(error) > accuracy){
     float speed = kp*error;
     drive(speed, speed, 10);
-    x = LM.position(rev) * 3.1415926535897932384626 * 4;
+    x = RM.position(rev) * 3.1415926535897932384626 * 4;
     error = inches - x;
     Brain.Screen.printAt(10, 50, "inches driven = %.2f", x);
   }
@@ -71,22 +71,43 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  roller.spin(fwd, 100, pct);
-  intake.spin(fwd,20, pct);
-  inchdrive(23);
-  roller.stop(coast);
-  roller.spin(fwd, 25, pct);
-  inchdrive(-17);
-  intake.stop(coast);
-  drive(50, -50, 550);
-  inchdrive(25);
-  drive(-50, 50, 645);
-  roller.stop(coast);
-  inchdrive(16);
-  intake.spin(fwd, 100, pct);
-  wait(5,sec);
-  intake.stop(coast);
-  driveStop();
+inchdrive(31.5);
+drive(0, 100, 1000);
+driveStop();
+intake.spin(fwd, 100, pct);
+wait(5,sec);
+intake.stop(coast);
+inchdrive(-5);
+
+
+// inchdrive(30);
+// driveStop();
+// wait(1,sec);
+// drive(-25, 25, 685*2/3*2);
+// driveStop();
+// wait(1,sec);
+// inchdrive(18);
+// drive(100,100,500);
+// driveStop();
+// intake.spin(fwd, 100, pct);
+// driveStop();
+
+// roller.spin(fwd, 100, pct);
+// intake.spin(fwd,20, pct);
+// inchdrive(23);
+// roller.stop(coast);
+// roller.spin(fwd, 25, pct);
+// inchdrive(-17);
+// intake.stop(coast);
+// drive(50, -50, 550);
+// inchdrive(25);
+// drive(-50, 50, 645);
+// roller.stop(coast);
+// inchdrive(16);
+// intake.spin(fwd, 100, pct);
+// wait(5,sec);
+// intake.stop(coast);
+// driveStop();
 }
 
 /*---------------------------------------------------------------------------*/

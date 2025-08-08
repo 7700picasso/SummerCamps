@@ -15,11 +15,11 @@ LF = Motor(Ports.PORT2, GearSetting.RATIO_18_1,True)
 LB = Motor(Ports.PORT1, GearSetting.RATIO_18_1, True)
 RF = Motor(Ports.PORT9, GearSetting.RATIO_18_1, False)
 RB = Motor(Ports.PORT7, GearSetting.RATIO_18_1, False)
-pi_num =3.14
+gyro = Inertial(Ports.PORT13)
 
+pi_num =3.14
 dia = 3.25
 gr = 1.5
-
 
 def drive(left_speed, right_speed,wt):
     LF.spin(FORWARD, left_speed, PERCENT)
@@ -54,24 +54,43 @@ def inch_drive(target):
        #stop 
        robot_brake()
 
+def gryo_print():
+    rotation = gyro.rotation(DEGREES)
+    brain.screen.print_at("rotations:", rotation , x=0 , y=80)
 
-def autonomous():
-    brain.screen.clear_screen()
-    brain.screen.print("autonomous code")
-    # place automonous code here
-    inch_drive(25)
-    robot_brake()
-    drive(-50,50,10)
+def gyro_turn(target):
+    rotation = 0.0
+    gyro.reset_rotation()
+    error = target - rotation
+    accuracy = 25.0
+    kp = 3.0
+    speed = kp * error
+
+    while abs(error) >= accuracy:
+        gryo_print()
+        drive(speed, -speed , 10)
+        rotation = gyro.rotation(DEGREES)
+        error = target - rotation
+        speed = kp * error
+           
     robot_brake()
 
 def user_control():
     brain.screen.clear_screen()
-    brain.screen.print("driver control")
+    brain.screen.print("auto control")
     # place driver control in this while loop
+    gyro.calibrate()
     while True:
+        gryo_print()
         wait(20, MSEC)
-
-
+    
+def autonomous():
+    brain.screen.print("autonomous code")
+    # place automonous code here
+    gyro.calibrate()
+    gyro_turn(-90)
+    robot_brake()
+   
 # create competition instance
 comp = Competition(user_control, autonomous)
 
