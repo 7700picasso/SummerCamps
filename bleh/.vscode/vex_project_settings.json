@@ -1,0 +1,19 @@
+{
+	"extension": {
+		"version": "0.7.2025041600",
+		"json": 2
+	},
+	"project": {
+		"name": "bleh",
+		"description": "An essay is a piece of writing that presents an author's own argument or perspective on a particular topic, often exploring ideas and information in a structured way. It typically includes an introduction, body paragraphs that develop the argument, and a conclusion that summarizes the main points. Essays can vary in length and complexity depending on the purpose and audience, but they generally aim to inform, persuade, or analyze. ",
+		"creationDate": "7/28/2025, 1:27:49 PM",
+		"platform": "V5",
+		"language": "cpp",
+		"slot": 1,
+		"sdkVersion": "V5_20240802_15_00_00",
+		"cpp": {
+			"includePath": [],
+			"printf_float": true
+		}
+	}
+}

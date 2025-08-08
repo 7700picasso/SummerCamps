@@ -1,0 +1,19 @@
+{
+	"extension": {
+		"version": "0.7.2025041600",
+		"json": 2
+	},
+	"project": {
+		"name": "ohioTallRobot",
+		"description": "",
+		"creationDate": "7/8/2025, 9:29:34 AM",
+		"platform": "V5",
+		"language": "cpp",
+		"slot": 6,
+		"sdkVersion": "V5_20240802_15_00_00",
+		"cpp": {
+			"includePath": [],
+			"printf_float": true
+		}
+	}
+}
