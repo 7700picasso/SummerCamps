@@ -14,9 +14,13 @@ using namespace vex;
 // A global instance of competition
 competition Competition;
 motor RM (PORT2, ratio18_1, true);
-motor LM (PORT16, ratio18_1, false);
+motor LM (PORT6, ratio18_1, false);
 motor intake (PORT15, ratio18_1, false);
+
+motor leftintake (PORT5, ratio18_1,false);
+motor rightintake(PORT1, ratio18_1, true);
 controller Controller;
+brain Brain;
 // define your global instances of motors and other devices here
 
 /*---------------------------------------------------------------------------*/
@@ -35,21 +39,29 @@ void stopRobot() {
   LM.stop(brake);
 }
 
-void SpinRight(int lspeed) {
-  RM.stop(brake);
-  LM.spin(forward, lspeed , pct);
-}
+void inchDrive(float inches) {
+  LM.setPosition(0, rev);
+  float x = LM.position(rev) * M_PI * 4 * 1 ;
+  float kP = 2.14159;
+  float error = inches - x;
+  float speed = 0.0;
 
-void SpinLeft(int rspeed) {
-  LM.stop(brake);
-  RM.spin(forward, rspeed , pct);
+
+  while( fabs(error) > 0.5 ) {
+    speed = kP * error;
+    driveTrain(speed, speed, 30);
+    x = LM.position(rev) * M_PI * 4 * 1;
+    error = inches - x;
+  }
+  stopRobot();
+  Brain.Screen.printAt(200, 135, "distance = %0.2f", x );
 }
 /*---------------------------------EOF---------------------------------------*/
 
 void pre_auton(void) {
 
   // All activities that occur before the competition starts
-  // Example: clearing encoders, setting servo positions, ...
+  // Example: clearing encoderxxdss, setting servo positions, ...
 }
 
 /*---------------------------------------------------------------------------*/
@@ -64,16 +76,24 @@ void pre_auton(void) {
 
 void autonomous(void) {
   // ..........................................................................
-  driveTrain(50, 50, 2000);
+  intake.spin(forward, 30, pct);
+  leftintake.spin(forward,100, pct);
+  rightintake.spin(forward,100,pct);
+  inchDrive(33);
+  driveTrain(50, -50, 410);
+  inchDrive(2);
+  wait(1000, msec);
+  intake.spin(reverse, 0 ,pct);
+  leftintake.spin(reverse, 0 ,pct);
+  rightintake.spin(reverse, 0 ,pct);
+  inchDrive(-10);
+  driveTrain(50, -50, 850);
+  inchDrive(13); 
+  intake.spin(forward, 90, pct);
   wait(10000, msec);
-  driveTrain(50, -50, 20000);
-  wait(1000, msec); 
-  driveTrain(50, -50, 360);
-  wait(1000, msec);
-  driveTrain(50, 50, 4000);
-  wait(1000, msec);
-  driveTrain(50, -50, 370);
+  intake.spin(reverse, 0 ,pct);
   stopRobot();
+
   // ..........................................................................
 }
 
@@ -89,15 +109,21 @@ void autonomous(void) {
 
 void usercontrol(void) {
   // User control code here, inside the loop
+  Brain.Screen.print("usercontrol is working");
   while (1) {
 
-    int lspeed = Controller.Axis3.position(pct);
-    int rspeed = Controller.Axis2.position(pct);
+    // int lspeed = Controller.Axis3.position(pct);
+    // int rspeed = Controller.Axis2.position(pct);
 
-    driveTrain(rspeed, lspeed, 10);
+    // driveTrain(rspeed, lspeed, 10);
+
+    int forwardY = Controller.Axis3.position(pct);
+    int sideX = Controller.Axis1.position(pct);
+    driveTrain(forwardY - sideX, forwardY + sideX, 10);
 
     if (Controller.ButtonR1.pressing()){
       intake.spin(forward, 100, pct);
+
     }
 
     else if (Controller.ButtonR2.pressing()){
@@ -109,7 +135,30 @@ void usercontrol(void) {
     }
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
+
+
+   if(Controller.ButtonL1.pressing()){
+    leftintake.spin(forward,100, pct);
+    rightintake.spin(forward,100,pct);
+    intake.spin(forward, 15, pct);
+  }else if(Controller.ButtonL2.pressing()){
+     leftintake.spin(reverse,100, pct);
+      rightintake.spin(reverse,100,pct);
+      intake.spin(reverse, 75, pct);
+
+  }else{
+    leftintake.stop(brake);
+    rightintake.stop(brake);
+   
+
+    
   }
+  wait(20, msec);
+
+  
+  }
+
+  
 }
 
 //
@@ -119,7 +168,6 @@ int main() {
   // Set up callbacks for autonomous and driver control periods.
   Competition.autonomous(autonomous);
   Competition.drivercontrol(usercontrol);
-
   // Run the pre-autonomous function.
   pre_auton();
 
