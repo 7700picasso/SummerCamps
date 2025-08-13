@@ -53,56 +53,7 @@ void auton()
     inchDrive(-24);
     drive(-50,88,2000);
     drivestop();
-    drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();
-    drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();  drive(50,80,300);
-    drivestop();
-    drive(-50,-80,300);
-    drivestop();
+    
    
 }
 void drivercontrol()
