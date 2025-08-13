@@ -32,30 +32,31 @@ void driveStop(){
     RB.stop(brake);
     LB.stop(brake);
 }
+
+void inchDrive(float target)
+{
+    LF.setPosition(0,turns);
+    float x = 0;
+    float error = target;
+    float kp = 5;
+
+    while(fabs(error)>0.5){
+        float speed = kp*error;
+        drive(speed,speed,10);
+        x = LF.position(turns)*M_PI*4*1.5;
+        error = target - x;
+    }
+    driveStop();
+    
+}
 int clamp(int x, int lower, int upper){
     return fmin(fmax(x, lower),upper);
 }
 
 void auton(){
-    drive(50,50,2750);
-    driveStop();
-    drive(50,-50,250);
-    driveStop();
-
-    drive(50,50,2750);
-    driveStop();
-    drive(50,-50,250);
-    driveStop();
-
-    drive(50,50,1900);
-    driveStop();
-    drive(50,-50,200);
-    driveStop();
-
-    drive(50,50,3150);
-    driveStop();
-    drive(50,-50,250);
-    driveStop();
+    inchDrive(24);
+    
+    
     
 
 }
@@ -68,6 +69,11 @@ void drivercontrol(){
     Brain.Screen.setPenColor(white);
     //Brain.Screen.printAt(0,80,"hi");
     while (1){
+        int lstick = controller1.Axis3.position();
+        int rstick = controller1.Axis2.position();
+        drive(lstick,rstick,10);
+
+        
     if(controller1.ButtonB.pressing()){
             Brain.Screen.clearScreen();
         }

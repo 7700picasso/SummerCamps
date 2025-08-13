@@ -37,15 +37,15 @@ gyro = Inertial(Ports.PORT17)
 
 def turnTo(angle):
     error = angle - gyro.rotation()
-    kp = 5
+    kp = 0.5
     timer = Timer()
-    while abs(error)>2 or timer.time(MSEC)>2000:
+    while abs(error)>2 and timer.time(MSEC) < 2000:
         error = angle - gyro.rotation()
         if error>180:
             error = 360 - error
-        if error<=180:
+        if error<-180:
             error = 360 + error
-        brain.screen.print_at("error = ",error,x = 0,y = 40)
+      #  brain.screen.print_at("error = ",error,x = 0,y = 40)
         drive(kp*error,-kp*error,20)
     brain.screen.print_at("done.                                    ",x = 0,y =40)
     driveStop()
@@ -63,11 +63,16 @@ gear_ratio = 3/2
 def inchDrive(inches):
     x = 0
     LF.set_position(0,TURNS)
+    error = inches - x
     x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
-    while x < inches:
-        drive(50,50,10)
+    kp = 7
+    while abs(error) > 0.25:
         x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
-        brain.screen.print_at("inches = ", x, x = 0, y = 40)
+        error = inches - x
+        speed = error*kp
+        drive(speed,speed,10)
+        
+        #brain.screen.print_at("inches = ", x, x = 0, y = 40)
     driveStop()
     brain.screen.print_at("done",x=0,y=40)
 
@@ -78,7 +83,7 @@ def autonomous():
     gyro.calibrate()
     while gyro.is_calibrating():
         wait(20,MSEC)
-    inchDrive(56)
+    inchDrive(58)
     wait(1,SECONDS)
     turnTo(-90)
     driveStop()
@@ -86,7 +91,16 @@ def autonomous():
     wait(1,SECONDS)
     turnTo(180)
     driveStop()
-    inchDrive(55)
+    inchDrive(53)
+    inchDrive(-53)
+    wait(1,SECONDS)
+    turnTo(-90)
+    driveStop()
+    inchDrive(-78)
+    wait(1,SECONDS)
+    turnTo(180)
+    driveStop()
+    inchDrive(58)
 
 def drivercontroll():
     while True:
