@@ -13,54 +13,46 @@ competition Compertition;
 // A global instance of vex::brain used for printing to the V5 brain screen
 vex::brain Brain;
 controller controller1;
-motor LF= motor(PORT11,ratio18_1,true);
-motor RF= motor(PORT16,ratio18_1,false);
+motor LF = motor(PORT11, ratio18_1, true);
+motor RF = motor(PORT16, ratio18_1, false);
 // define your global instances of motors and other devices here
-void drive (int left, int right, int wt){
-LF.spin(fwd,left,pct);
-RF.spin(fwd,right,pct);
-wait(wt,msec);
+void drive(int left, int right, int wt)
+{
+    LF.spin(fwd, left, pct);
+    RF.spin(fwd, right, pct);
+    wait(wt, msec);
 }
-void driveStop(){
+void driveStop()
+{
     LF.stop(brake);
     RF.stop(brake);
 }
+void inchDrive(float target)
+{
 
+    LF.setPosition(0,turns);
+    float x=0;
+    float error= target;
+    float kp=1.25;
+    while(fabs(error)>0.5){
+        float speed=kp*error;
 
-
+        drive(speed,speed,10);
+        x=LF.position(turns)*M_PI*3.25* 5.0/3;
+        error=target-x;
+    }
+    driveStop();
+}
 
 int clamp(int x, int lower, int upper)
 {
     return fmin(fmax(x, lower), upper);
 }
 
-void auton(){
-
-drive(50,50,2850);
-driveStop();
-
-drive(0,50,780);
-driveStop();
-
-drive(50,50,2500);
-driveStop();
-
-drive(0,50,720);
-driveStop();
-
-drive(50,50,2800);
-driveStop();
-
-drive(0,50,720);
-driveStop();
-
-drive(50,50,2400);
-driveStop();
-
-
+void auton()
+{
+    inchDrive(24);  
 }
-
-
 
 void drivercontrol()
 {
@@ -69,15 +61,21 @@ void drivercontrol()
     int x = 100;
     int y = 100;
     while (1)
-       { 
-        if(controller1.ButtonB.pressing()){
+    {
+        int lstick = controller1.Axis3.position();
+        int rstick = controller1.Axis1.position();
+        //          drive(lstick,rstick,10);
+        drive(lstick + rstick, lstick - rstick, 10);
+
+        if (controller1.ButtonB.pressing())
+        {
             Brain.Screen.clearScreen();
         }
-           if(controller1.ButtonA.pressing()){
+        if (controller1.ButtonA.pressing())
+        {
             Brain.Screen.print("Dommy is the best teacher  ");
         }
-        x+=controller1.Axis4.position()/20;
-        y-=controller1.Axis3.position()/20;
+
         if (controller1.ButtonUp.pressing())
         {
             y -= 5;
@@ -110,13 +108,15 @@ void drivercontrol()
         Brain.Screen.drawCircle(x, y, 5);
 
         // Allow other tasks to run
-        this_thread::sleep_for(5);
+        this_thread::sleep_for(10);
     }
 }
-int main(){
-Compertition.drivercontrol(drivercontrol);
-Compertition.autonomous(auton);
-while(true){
-    wait(100,msec);
-}
+int main()
+{
+    Compertition.drivercontrol(drivercontrol);
+    Compertition.autonomous(auton);
+    while (true)
+    {
+        wait(100, msec);
+    }
 }
