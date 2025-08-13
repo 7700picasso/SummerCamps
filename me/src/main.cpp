@@ -27,6 +27,21 @@ void driveStop(){
     LF.stop(brake);
     RF.stop(brake);
 }
+void inchDrive(float target){
+    LF.setPosition(0,turns);
+    float x = 0;
+    float error = target;
+    float kp = 8;
+    while(fabs(error)>0.3){
+        float speed = kp*error;
+        drive(speed,speed,10);
+        x = LF.position(turns)*M_PI*4;
+        error = target - x;
+    }
+    driveStop();
+}
+
+
 int clamp(int x, int lower, int upper){
     
     // ANOTHER WAY TO UNDERSTAND BELOW STATEMENT
@@ -42,20 +57,31 @@ int clamp(int x, int lower, int upper){
     return fmin(fmax(x, lower),upper);
 }
 void auton(){
-    drive(50,50,3500);
-    driveStop();
-    drive(35,50,1350);
-    driveStop();
-    drive(50,50,3000);
-    driveStop();
-    drive(-50,50,650);
-    driveStop();
-    drive(50,50,3500);
-    driveStop();
-    drive(-50,50,650);
-    driveStop();
-    drive(50,50,4000);
-    driveStop();
+    // int a = 0;
+    // while(a<100) {
+    //     drive(100,100,150);
+    //     driveStop();
+    //     drive(-100,-100,150);
+    //     driveStop();
+    //     a+=1;
+    inchDrive(24);
+    wait(200,msec);
+    inchDrive(-24); q
+
+    // drive(50,50,3500);
+    // driveStop();
+    // drive(35,50,1350);
+    // driveStop();
+    // drive(50,50,3000);
+    // driveStop();
+    // drive(-50,50,650);
+    // driveStop();
+    // drive(50,50,3500);
+    // driveStop();
+    // drive(-50,50,650);
+    // driveStop();
+    // drive(50,50,4000);
+    // driveStop();
 }
 void drivercontrol()
 {
@@ -63,6 +89,12 @@ void drivercontrol()
     int y = 100;
     while (1)
     {
+        
+        int lstick = controller1.Axis3.position();
+        int rstick = controller1.Axis2.position();
+        drive(lstick,rstick,10);
+
+        
         if (controller1.ButtonB.pressing()){
             Brain.Screen.clearScreen();
         }
