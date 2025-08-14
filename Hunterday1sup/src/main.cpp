@@ -43,7 +43,7 @@ void inchDrive(float target)
     float error = target;
     float kp = 10;
 
-    while(fabs(error)>0.5){
+    while(fabs(error)>0.5){ 
         float speed = kp*error;
         drive(speed,speed,10);
         x = LF.position(turns)*M_PI*4*1.5;
@@ -59,7 +59,7 @@ void turnTo(float target){
     while(fabs(error)>2){
         error  = target - gyro1.rotation();
         while(error > 180){
-            error  = error - 360;
+            error  = error - 180;
             
         }
         
