@@ -18,6 +18,9 @@ motor RF= motor(PORT13, ratio18_1,false);
 motor LB = motor(PORT12, ratio18_1,true);
 motor RB = motor(PORT14, ratio18_1,false);
 
+inertial gyro1 = inertial(PORT18);
+
+
 void drive(int left, int right, int wt){
     LF.spin(fwd,left,pct);
     RF.spin(fwd,right,pct);
@@ -38,7 +41,7 @@ void inchDrive(float target)
     LF.setPosition(0,turns);
     float x = 0;
     float error = target;
-    float kp = 5;
+    float kp = 10;
 
     while(fabs(error)>0.5){
         float speed = kp*error;
@@ -49,12 +52,35 @@ void inchDrive(float target)
     driveStop();
     
 }
+
+void turnTo(float target){
+    float error = target - gyro1.rotation();
+    float kp = 0.5;
+    while(fabs(error)>2){
+        error  = target - gyro1.rotation();
+        while(error > 180){
+            error  = error - 360;
+            
+        }
+        
+        while(error > 180){
+            error  = error + 360;
+        }
+        float speed  = error * kp;
+        drive(speed,-speed ,5);
+    }
+    driveStop();
+}
 int clamp(int x, int lower, int upper){
     return fmin(fmax(x, lower),upper);
 }
 
 void auton(){
-    inchDrive(24);
+    
+    turnTo(90);
+    turnTo(-135);
+    turnTo(0);
+
     
     
     
@@ -108,7 +134,6 @@ void drivercontrol(){
         {
             Brain.Screen.setFillColor(yellow);
             Brain.Screen.setPenColor(yellow);
-            
         }
         else
         {
@@ -117,12 +142,24 @@ void drivercontrol(){
         }
 
         Brain.Screen.drawCircle(x, y, 10);
+
+        //float angle = gyro1.heading();
+
+        controller1.Screen.setCursor(1,1);
+        controller1.Screen.print("heading = %.2f    ",gyro1.heading());
+        controller1.Screen.setCursor(2,1);
+        controller1.Screen.print("yaw = %.2f    ",gyro1.yaw());
+        controller1.Screen.setCursor(3,1);
+        controller1.Screen.print("rot = %.2f    ",gyro1.rotation());
             this_thread::sleep_for(20);
 
     }
 }
-
 int main(){
+
+    gyro1.calibrate();
+    waitUntil(!gyro1.isCalibrating());
+
     Competition.drivercontrol(drivercontrol);
     Competition.autonomous(auton);
     while(true){
