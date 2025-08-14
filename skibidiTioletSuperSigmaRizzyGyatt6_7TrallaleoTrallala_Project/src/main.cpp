@@ -15,6 +15,9 @@ vex::brain Brain;
 controller controller1;
 motor LF = motor(PORT11, ratio18_1, true);
 motor RF = motor(PORT16, ratio18_1, false);
+
+
+inertial gyro1=inertial(PORT8);
 // define your global instances of motors and other devices here
 void drive(int left, int right, int wt)
 {
@@ -33,7 +36,7 @@ void inchDrive(float target)
     LF.setPosition(0,turns);
     float x=0;
     float error= target;
-    float kp=1.25;
+    float kp=5;
     while(fabs(error)>0.5){
         float speed=kp*error;
 
@@ -43,6 +46,23 @@ void inchDrive(float target)
     }
     driveStop();
 }
+void turnTo(float target){
+float error=target -gyro1.rotation();
+float kp=1;
+while(fabs(error)>2){
+error=target-gyro1.rotation();
+while(error>180){
+    error=error-360;
+}
+while(error<-180){
+    error=error+360;
+}
+float speed=error*kp;
+drive(speed,-speed,10);
+}
+driveStop();
+
+}
 
 int clamp(int x, int lower, int upper)
 {
@@ -51,7 +71,19 @@ int clamp(int x, int lower, int upper)
 
 void auton()
 {
-    inchDrive(24);  
+    inchDrive(48);
+    turnTo(-45);
+     inchDrive(48);
+    turnTo(-90);
+     inchDrive(48);
+    turnTo(-135);
+     inchDrive(48);
+    turnTo(-180);
+     inchDrive(48);
+    turnTo(-225);
+     inchDrive(48);
+    turnTo(-270);
+     
 }
 
 void drivercontrol()
@@ -107,12 +139,24 @@ void drivercontrol()
 
         Brain.Screen.drawCircle(x, y, 5);
 
+
+        //float angle =gyro1.heading();
+        controller1.Screen.setCursor(1,1);
+        controller1.Screen.print("heading = %.2f.      ",gyro1.heading());
+        controller1.Screen.setCursor(2,1);
+        controller1.Screen.print("yaw=%.2f.   ", gyro1.yaw());
+        controller1.Screen.setCursor(3,1);
+        controller1.Screen.print("rot=%.2f.   ", gyro1.rotation());
+        
+
         // Allow other tasks to run
         this_thread::sleep_for(10);
     }
 }
 int main()
 {
+    gyro1.calibrate();
+    waitUntil(!gyro1.isCalibrating());
     Compertition.drivercontrol(drivercontrol);
     Compertition.autonomous(auton);
     while (true)
