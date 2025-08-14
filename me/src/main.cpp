@@ -16,6 +16,8 @@ controller controller1;
 
 motor LF = motor(PORT6,ratio18_1,false);
 motor RF = motor(PORT2,ratio18_1,true);
+
+inertial gyro1 = inertial(PORT15);
 // define your global instances of motors and other devices here
 
 void drive(int left, int right, int wt){
@@ -37,6 +39,23 @@ void inchDrive(float target){
         drive(speed,speed,10);
         x = LF.position(turns)*M_PI*4;
         error = target - x;
+    }
+    driveStop();
+}
+
+void turnTo(float target){
+    float error = target - gyro1.rotation();
+    float kp = 1;
+    while (fabs(error)>2){
+        error = target - gyro1.rotation();
+        while(error > 180){
+            error = error - 360;
+        }
+        while(error < -180){
+            error = error + 360;
+        }
+        float speed = error * kp;
+        drive(speed,-speed,10);
     }
     driveStop();
 }
@@ -64,10 +83,18 @@ void auton(){
     //     drive(-100,-100,150);
     //     driveStop();
     //     a+=1;
-    inchDrive(24);
-    wait(200,msec);
-    inchDrive(-24); q
-
+    turnTo(60);
+    inchDrive(36);
+    turnTo(120);
+    inchDrive(36);
+    turnTo(180);
+    inchDrive(36);
+    turnTo(-120);
+    inchDrive(36);
+    turnTo(-60);
+    inchDrive(36);
+    turnTo(0);
+    inchDrive(36);
     // drive(50,50,3500);
     // driveStop();
     // drive(35,50,1350);
@@ -102,7 +129,7 @@ void drivercontrol()
             Brain.Screen.setPenColor(transparent);
             Brain.Screen.printAt(x,y,"I LOVE DIDDY",x,y);
         }
-        // TWO WAYS TO ADD BOUNDERIES
+        // TWO WAYS TO ADD BOUNDERIES TO CIRCLE ON BRAINSCREEN
         
         //1.
         // if(controller1.ButtonUp.pressing() && y>0){
@@ -164,6 +191,21 @@ void drivercontrol()
         }
         // Brain.Screen.printAt(x,y,"pressed at %d, %d",x,y);
         Brain.Screen.drawCircle(x, y, 5);
+
+
+        // float angle = gyro1.heading();
+        /*
+        .heading(); [0,360]
+        yaw(); [-180,180]
+        rotation(); [-infinte,infinite]
+        */
+        controller1.Screen.setCursor(1,1);
+        controller1.Screen.print("heading = %.2f   ",gyro1.heading());
+        controller1.Screen.setCursor(2,1);
+        controller1.Screen.print("yaw = %.2f   ",gyro1.yaw());
+        controller1.Screen.setCursor(3,1);
+        controller1.Screen.print("rot = %.2f   ",gyro1.rotation());
+
         // Allow other tasks to run
         this_thread::sleep_for(10);
     }
@@ -171,6 +213,10 @@ void drivercontrol()
 
 
 int main(){
+    
+    gyro1.calibrate();
+    waitUntil(!gyro1.isCalibrating());
+
     Competition.drivercontrol(drivercontrol);
     Competition.autonomous(auton);
     while(true){
