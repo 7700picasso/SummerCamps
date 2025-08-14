@@ -71,17 +71,17 @@ int clamp(int x, int lower, int upper)
 
 void auton()
 {
-    inchDrive(48);
+    inchDrive(24);
     turnTo(-45);
-     inchDrive(48);
+     inchDrive(24);
     turnTo(-90);
-     inchDrive(48);
+     inchDrive(24);
     turnTo(-135);
-     inchDrive(48);
+     inchDrive(24);
     turnTo(-180);
-     inchDrive(48);
+     inchDrive(24);
     turnTo(-225);
-     inchDrive(48);
+     inchDrive(24);
     turnTo(-270);
      
 }
