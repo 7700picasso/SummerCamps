@@ -16,6 +16,7 @@ vex::brain Brain;
 controller controller1;
 motor LF = motor(PORT2, ratio18_1, false);
 motor RF = motor(PORT3, ratio18_1, true);
+inertial gyro1 = inertial(PORT7);
 // define your global instances of motors and other devices here
 void drive(int left, int right, int wt)
 {
@@ -43,17 +44,63 @@ void inchDrive(float target)
     }
     drivestop();
 }
+void turnTo(float target){  
+    float error = target- gyro1.rotation();
+    float kp = 0.75;
+    while(fabs(error)>1){
+        error = target - gyro1.rotation();
+        while(error > 180){
+            error = error - 360;
+        }
+        while(error < -180){
+            error = error + 360;
+        }
+        float speed = error * kp;
+        drive(speed,-speed,20);
+    }
+    Brain.Screen.printAt(0,60,"done turn to %.1f",target);
+    drivestop();
+}
 int clamp(int x, int lower, int upper)
 {
     return fmin(fmax(x, lower), upper);
 }
 void auton()
 {
-    inchDrive(24);
-    inchDrive(-24);
-    drive(-50,88,2000);
-    drivestop();
-    
+/*drive(50,50,1800);
+drivestop();
+drive(-50,50,800);
+drivestop();
+drive(50,50,800);
+drive(-50,50,800);
+drivestop();*/
+
+inchDrive(40);
+turnTo(-30);
+wait(1,sec);
+inchDrive(40);
+turnTo(-90);
+wait(1,sec);
+inchDrive(40);
+turnTo(-150);
+inchDrive(40);
+wait(1,sec);
+turnTo(-210);
+inchDrive(40);
+turnTo(-270);
+inchDrive(40);
+wait(1,sec);
+turnTo(-300);
+inchDrive(40);
+
+
+
+
+
+
+
+
+
    
 }
 void drivercontrol()
@@ -122,11 +169,25 @@ void drivercontrol()
         Brain.Screen.drawCircle(x, y, 5);
 
         // Allow other tasks to run
+        // float angle =gyro1.heading();
+        /*
+        .yaw();    [0,360]
+        .heading();[-180,180]
+        .rotation();[infite,infinite]
+        */
+       controller1.Screen.setCursor(1,1);
+       controller1.Screen.print("heading = %.2f               ",gyro1.heading());
+       controller1.Screen.setCursor(2,1);
+       controller1.Screen.print("yaw = %.2f ",gyro1. yaw());
+       controller1.Screen.setCursor(3,1);
+       controller1.Screen.print("rot = %.2f  ",gyro1.rotation());
         this_thread::sleep_for(10);
     }
 }
 int main()
 {
+    gyro1.calibrate();
+    waitUntil(!gyro1.isCalibrating());
     Competition.drivercontrol(drivercontrol);
     Competition.autonomous(auton);
 
