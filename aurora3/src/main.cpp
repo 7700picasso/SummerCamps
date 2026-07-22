@@ -15,10 +15,15 @@ using namespace vex;
 competition Competition;
 
 // define your global instances of motors and other devices here
-
+vex::brain Brain;
 motor lm = motor(PORT19, ratio18_1, false);
-motor rm = motor(PORT16, ratio18_1, true);
+motor rm = motor(PORT15, ratio18_1, true);
 motor arm = motor(PORT13, ratio18_1, false);
+
+//global variables
+float pi = 3.14159;
+float dia = 3.25;
+float gearRatio = 1;
 
 // movement functions here
 void drive(int Lspeed, int Rspeed, int wt){
@@ -32,6 +37,31 @@ void driveBrake(){
   rm.stop(brake);
 }
 
+void armMove(int Armspeed, int wt){
+  arm.spin(forward, Armspeed, pct);
+  wait(wt, msec);
+}
+
+void armBrake(){
+  arm.stop(brake);
+}
+
+void inchDrive(float target, int speed){
+  float x = 0; //local variable
+  lm.setPosition(0, rev);
+  x = lm.position(rev)*dia*pi*gearRatio;
+  while (x < target){
+    drive(50, 50, 10);
+    x = lm.position(rev)*dia*pi*gearRatio;
+    Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
+  }
+  while (x > target){
+    drive(-50, -50, 10);
+    x = lm.position(rev)*dia*pi*gearRatio;
+    Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
+  }
+  driveBrake();
+}
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -59,13 +89,49 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-// drive(50, 50, 2000);
-// driveBrake();
+inchDrive(50, 50);
+driveBrake();
+inchDrive(-50, 50);
+driveBrake();
 
-while(true){
-  drive(50, 50, 1000);
-  drive(-50, -50, 1000);
-}
+
+// while(true){
+// armMove(50, 1000);
+// armBrake();
+// armMove(-50, 1000);
+// armBrake();
+// }
+
+
+// while(true){
+//   drive(60, 60, 2000);
+//   driveBrake();
+//   wait(300, msec);
+//   drive(50, -50, 750);
+//   driveBrake();
+//   wait(300, msec);
+//   drive(60, 60, 1000);
+//   driveBrake();
+//   wait(300, msec);
+//   drive(50, -50, 750);
+//   driveBrake();
+//   wait(300, msec);
+//   drive(80, 80, 1000);
+//   driveBrake();
+//   wait(300, msec);
+//   drive(-50, 50, 750);
+//   driveBrake();
+//   wait(300, msec);
+//   drive(60, 60, 1000);
+//   driveBrake();
+//   wait(300, msec);
+//   drive(-50, 50, 750);
+//   driveBrake();
+//   wait(300, msec);
+//   drive(30, 30, 1000);
+//   driveBrake();
+//   wait(5000, msec);
+// }
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
