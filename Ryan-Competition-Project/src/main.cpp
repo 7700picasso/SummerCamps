@@ -10,22 +10,38 @@
 #include "vex.h"
 
 using namespace vex;
-
+float pi = 3.14;
+float dia = 4.00;
+float gearRatio = 60.0/48.0;
 // A global instance of competition
 competition Competition;
 
+vex::brain Brain;
+
 motor LM = motor(PORT1, ratio18_1, false);
-motor RM = motor(PORT2, ratio18_1, true);
+motor RM = motor(PORT9, ratio18_1, true);
 
 void drive(int Lspeed, int Rspeed, int wt){
   LM.spin(forward, Lspeed, pct);
   RM.spin(forward, Rspeed, pct);
-  wait(wt, msec);
+  wait(wt, msec );
 }
 
 void driveBrake(){
   LM.stop(brake);
   RM.stop(brake);
+}
+
+void inchDrive(float target){
+  float x = 0; 
+  LM.setPosition(0, rev);
+  x = LM.position(rev)*dia*pi*gearRatio;
+  while (x > target ) {
+    drive(-50,-50, 10);
+    x = LM.position(rev)*dia*pi*gearRatio;
+    Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
+  }
+  driveBrake();
 }
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -37,10 +53,9 @@ void driveBrake(){
 /*  not every time that the robot is disabled.                               */
 /*---------------------------------------------------------------------------*/
 
-void pre_auton(void) {
 
-  // All activities that occur before the competition starts
-  // Example: clearing encoders, setting servo positions, ...
+void pre_auton(void){
+  
 }
 
 /*---------------------------------------------------------------------------*/
@@ -51,13 +66,20 @@ void pre_auton(void) {
 /*  a VEX Competition.                                                       */
 /*                                                                           */
 /*  You must modify the code to add your own robot specific commands here.   */
-/*---------------------------------------------------------------------------*/
+/*----------------x=LM.position(rev)*Pi---------------------------------------------------*/
 
 void autonomous(void) {
-  while true(){
-    LR.spin
-  
-}
+  inchDrive(-12);
+  // drive(100, 100, 800);
+  // driveBrake();
+  // wait(500, msec);
+  // drive(-100,100,500);
+  // driveBrake();
+  // wait(500, msec);
+  // drive(100, 100, 800);
+  // driveBrake();
+  }
+
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
