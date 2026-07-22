@@ -13,23 +13,54 @@ using namespace vex;
 
 // A global instance of competition
 competition Competition;
+vex::brain Brain;
 
-// define your global instances of motors and other devices here
 
-motor LM = motor(PORT3,ratio18_1, false);
-motor RM = motor(PORT2,ratio18_1, true);
+vex::motor LM = motor(PORT2, ratio18_1, false);
+vex::motor RM = motor(PORT3, ratio18_1, true);
 
-//movement funkshuns here
 
-void drive(int Lspeed, int Rspeed, int wt){
-LM.spin(forward, Lspeed, pct);
-RM.spin(forward, Rspeed, pct);
-wait(wt, msec);
+float pi = 3.14159;
+float dia = 4.0;
+float gearRaitio = 60.0/48.0;
+
+void drive(int lspeed, int rspeed, int wt){
+  LM.spin(forward, lspeed, pct);
+  RM.spin(forward, rspeed, pct);
+  wait(wt, msec);
+
 }
 
 void driveBrake(){
-LM.stop(brake);
-RM.stop(brake);
+  LM.stop(brake);
+  RM.stop(brake);
+}
+
+
+void inchDrive(float target){
+
+
+
+
+float x = 0; //loacal variable
+  LM.setPosition(0, rev);
+  x = LM.position(rev)*dia*pi*gearRaitio;
+  
+  if (target >= 0 ) {
+
+
+
+  }
+  
+  while (x < target ) {
+    drive(50, 50, 10);
+    x = LM.position(rev)*dia*pi*gearRaitio;
+    Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
+  }
+
+
+
+  driveBrake();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -59,19 +90,10 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
   void autonomous(void) {
-  // ..........................................................................
-  // Insert autonomous user code here.
-  // ..........................................................................
-
+  inchDrive(29);
  
-
-
-
-while (true) {
-drive( 50,  50, 2000);
-drive( -50,  -50, 2000);
 }
-}
+
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
@@ -116,3 +138,7 @@ int main() {
     wait(100, msec);
   }
 }
+
+
+
+
