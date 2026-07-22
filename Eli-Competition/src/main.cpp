@@ -2,7 +2,7 @@
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
 /*    Author:       student01                                                  */
-/*    Created:      7/21/2O26, 03:08:03 PM                                     */
+/*    Created:      7/22/2O26, 03:08:03 PM                                     */
 /*    Description:  V05 project                                                */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
@@ -13,11 +13,14 @@ using namespace vex;
 
 // A global instance of competition
 competition Competition;
+vex::brain Brain;
 
 // define your global instances of motors and other devices here
 
-motor LM = motor(PORT10,ratio18_1,true);
-motor RM = motor(PORT5,ratio18_1,false);
+motor LM = motor(PORT17,ratio18_1,true);
+motor RM = motor(PORT18,ratio18_1,false);
+
+
 
 
 // movement functions here
@@ -33,13 +36,31 @@ void driveBrake(){
   RM.stop(brake);
 }
 
+//global variable 
+float pi = 3.14159;
+float dia = 4;
+float gearRatio = 60/48;
+
+void inchDrive(float target, int speed){
+float x = 0; //local variable
+LM.setPosition(0, rev);
+x = LM.position(rev)*dia*pi*gearRatio;
+while (x < target ) {
+drive(speed, speed, 10);
+x = LM.position(rev)*dia*pi*gearRatio;
+Brain.Screen.printAt(10, 20, "inches = %0.2f", x );
+}
+driveBrake();
+}
+
+
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
 /*  You may want to perform some actions before the competition starts.      */
 /*  Do them in the following function.  You must return from this function   */
 /*  or the autonomous and usercontrol tasks will not be started.  This       */
-/*  function is only called once after the V5 has been powered on and        */
+/*  function is only called once after the V05 has been powered on and        */
 /*  not every time that the robot is disabled.                               */
 /*---------------------------------------------------------------------------*/
 
@@ -63,9 +84,41 @@ void autonomous(void) {
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
-drive(50, 50, 2000);
-driveBrake();
 
+  inchDrive(12, 100);
+
+// drive(100, 100, 1000);
+// driveBrake();
+// wait(500, msec);
+// drive(100, -100, 799);
+// driveBrake();
+// wait(500, msec);
+// drive(100, 100, 1000);
+// driveBrake();
+// wait(500, msec);
+// drive(100, -100, 799);
+// driveBrake();
+// wait(500, msec);
+// drive(100, 100, 699);
+// driveBrake();
+// wait(500, msec);
+// drive(-100, 100, 899);
+// driveBrake();
+// wait(500, msec);
+// drive(100, 100, 700);
+// driveBrake();
+// wait(500, msec);
+// drive(-100, 100, 799);
+// driveBrake();
+// wait(500, msec);
+// drive(100, 100, 1000);
+// driveBrake();
+// wait(500, msec);
+// drive(-100, 100, 899);
+// driveBrake();
+// wait(500, msec);
+// drive(100,100,1000);
+// driveBrake();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -80,7 +133,7 @@ driveBrake();
 
 void usercontrol(void) {
   // User control code here, inside the loop
-  while (1) {
+  while (01) {
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
@@ -111,6 +164,68 @@ int main() {
     wait(100, msec);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

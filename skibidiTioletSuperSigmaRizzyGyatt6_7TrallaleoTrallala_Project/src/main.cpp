@@ -15,8 +15,8 @@ vex::brain Brain;
 controller controller1;
 motor LF = motor(PORT11, ratio18_1, true);
 motor RF = motor(PORT16, ratio18_1, false);
-
-
+motor intake=motor(PORT2, ratio18_1, false);
+motor intake2=motor(PORT10, ratio18_1, false);
 inertial gyro1=inertial(PORT8);
 // define your global instances of motors and other devices here
 void drive(int left, int right, int wt)
@@ -36,20 +36,25 @@ void inchDrive(float target)
     LF.setPosition(0,turns);
     float x=0;
     float error= target;
-    float kp=5;
+    float kp=0.9;
     while(fabs(error)>0.5){
-        float speed=kp*error;
+        float speed=kp*error + 5 *fabs(error)/error;
 
         drive(speed,speed,10);
-        x=LF.position(turns)*M_PI*3.25* 5.0/3;
+        x=LF.position(turns)*M_PI*3.25* 1.6;
         error=target-x;
     }
     driveStop();
 }
 void turnTo(float target){
 float error=target -gyro1.rotation();
-float kp=1;
-while(fabs(error)>2){
+float kp=1.5;
+float ki=0;
+float kd=1;
+float prevError=error;
+float totalError=error;
+
+while(fabs(error)>0.5){
 error=target-gyro1.rotation();
 while(error>180){
     error=error-360;
@@ -57,7 +62,9 @@ while(error>180){
 while(error<-180){
     error=error+360;
 }
-float speed=error*kp;
+float speed=error*kp+totalError*ki+(error-prevError)*kd;
+totalError+=error;
+prevError=error;
 drive(speed,-speed,10);
 }
 driveStop();
@@ -71,18 +78,11 @@ int clamp(int x, int lower, int upper)
 
 void auton()
 {
-    inchDrive(24);
-    turnTo(-45);
-     inchDrive(24);
-    turnTo(-90);
-     inchDrive(24);
-    turnTo(-135);
-     inchDrive(24);
-    turnTo(-180);
-     inchDrive(24);
-    turnTo(-225);
-     inchDrive(24);
-    turnTo(-270);
+    intake.spin(forward,100,pct);
+  inchDrive(48);
+  intake.stop(); 
+  inchDrive(-28);
+  turnTo(-80);
      
 }
 
@@ -94,6 +94,30 @@ void drivercontrol()
     int y = 100;
     while (1)
     {
+        if(controller1.ButtonR1.pressing())
+        {
+            intake.spin(forward,100,pct);
+            
+        }
+        else if(controller1.ButtonR2.pressing())
+        {
+            intake.spin(reverse,100,pct);
+            
+        }else{
+            intake.stop();
+        }
+         if(controller1.ButtonL1.pressing())
+        {
+            intake2.spin(forward,100,pct);
+            
+        }
+        else if(controller1.ButtonL2.pressing())
+        {
+            intake2.spin(reverse,100,pct);
+            
+        }else{
+            intake2.stop();
+        }
         int lstick = controller1.Axis3.position();
         int rstick = controller1.Axis1.position();
         //          drive(lstick,rstick,10);
