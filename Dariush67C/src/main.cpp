@@ -17,10 +17,11 @@ competition Competition;
 // define your global instances of motors and other devices here
 
 vex::brain Brain;
-motor LM = motor(PORT1, ratio18_1, false);
-motor RM = motor(PORT19, ratio18_1, true);
-motor BLM = motor(PORT11, ratio18_1, false);
-motor BRM = motor(PORT20, ratio18_1, true);
+motor LM = motor(PORT1, ratio18_1, true);
+motor RM = motor(PORT19, ratio18_1, false);
+motor BLM = motor(PORT17, ratio18_1, true);
+motor BRM = motor(PORT20, ratio18_1, false);
+controller Potato = controller(primary);
 double pi = 3.14159265;
 float dia = 4.0;
 float gearRatio = 60.0/48.0;
@@ -42,25 +43,27 @@ void driveBrake(){
 }
 
 
-void inchDrive(float target, float speed){
+void inchDrive(float target, int speed){
   float x = 0;
   LM.setPosition(0, rev);
   x = LM.position(rev)*dia*pi*gearRatio;
-  if (x >= 0){
+  if (target >= 0){
     while(x < fabs(target)){
       drive(speed, speed, 10);
       x = LM.position(rev)*dia*pi*gearRatio;
       Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
     }
   }
-  else{
-    while(x > fabs(target)){
-      drive(speed*-1, speed*-1, 10);
-      x = LM.position(rev)*dia*pi*gearRatio;
+  else if(target < 0){
+    while(x < fabs(target)){
+      drive(-speed, -speed, 10);
+      x = -LM.position(rev)*dia*pi*gearRatio;
       Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
     }
-  driveBrake();
+  
   }
+  driveBrake();
+
 }
 
 
@@ -92,17 +95,29 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
+  inchDrive(25, 25);
+  wait(300, msec);
+  drive(-25, 25, 780);
+  driveBrake();
+  wait(300, msec);
   inchDrive(20, 25);
+  wait(300, msec);
+  drive(-25, 25, 760);
+  driveBrake();
+  wait(300, msec);
+  inchDrive(25, 25);
+  wait(300, msec);
+  drive(27, -25, 760);
+  driveBrake();
+  wait(300, msec);
+  inchDrive(19, 25);
   wait(300, msec);
   drive(-25, 25, 740);
   driveBrake();
   wait(300, msec);
-  inchDrive(17, 25);
-  wait(300, msec);
-  drive(-25, 25, 720);
+  inchDrive(-21, 25);
   driveBrake();
-  inchDrive(-40, 25);
-  }
+}
   // drive(50, 50, 1000);
   // driveBrake();
   // wait(500, msec);
@@ -153,7 +168,66 @@ void autonomous(void) {
 
 void usercontrol(void) {
   // User control code here, inside the loop
+  float speedCap = 1;
   while (true) {
+    int leftSpeed = Potato.Axis3.position();
+    int rightSpeed = Potato.Axis2.position();
+
+    drive(static_cast<int>(leftSpeed*speedCap), static_cast<int>(rightSpeed*speedCap), 10);
+
+    if(Potato.ButtonL1.pressing()){
+      speedCap = 0.25;
+    }
+    else if(Potato.ButtonL2.pressing()){
+      speedCap = 0.5;
+    }
+    else if(Potato.ButtonR1.pressing()){
+      speedCap = 0.75;
+    }
+    else if(Potato.ButtonR2.pressing()){
+      speedCap = 1;
+    }
+
+
+
+
+    if(Potato.ButtonB.pressing()){
+      Brain.Screen.clearScreen();
+      Brain.Screen.printAt(135, 60, " __         __");
+      Brain.Screen.printAt(135, 80, "/  \\.-\"\"\"-./  \\");
+      Brain.Screen.printAt(135, 100, "\\    -   -    /");
+      Brain.Screen.printAt(135, 120, " |   o   o   |");
+      Brain.Screen.printAt(135, 140, " \\  .-'''-.  /");
+      Brain.Screen.printAt(135, 160, "  '-\\__Y__/-'");
+      Brain.Screen.printAt(135, 180, "     `---`");
+    }
+    else if(Potato.ButtonA.pressing()){
+      Brain.Screen.clearScreen();
+      Brain.Screen.printAt(135, 60, " __         __");
+      Brain.Screen.printAt(135, 80, "/  \\.-\"\"\"-./  \\");
+      Brain.Screen.printAt(135, 100, "\\    \\   /    /");
+      Brain.Screen.printAt(135, 120, " |   o   o   |");
+      Brain.Screen.printAt(135, 140, " \\  .-'''-.  /");
+      Brain.Screen.printAt(135, 160, "  '-\\__Y__/-'");
+      Brain.Screen.printAt(135, 180, "     `---`");
+    }
+    else if(Potato.ButtonX.pressing()){
+      Brain.Screen.clearScreen();
+      Brain.Screen.printAt(135, 0, "          .=     ,        =.");
+      Brain.Screen.printAt(135, 20, "  _  _   /'/    )\\,/,/(_   \\ \\");
+      Brain.Screen.printAt(135, 40, "   `//-.|  (  ,\\)\\//\\)\\/_  ) |");
+      Brain.Screen.printAt(135, 60, "   //___\\   `\\\\/\\/\\/\\///'  /");
+      Brain.Screen.printAt(135, 80, ",-\"~`-._ `\"--'_   `\"\"\"`  _ \\`'\"~-,_");
+      Brain.Screen.printAt(135, 100, "\\       `-.  '_`.      .'_` \\ ,-\"~`/");
+      Brain.Screen.printAt(135, 120, " `.__.-'`/   (-\\        /-) |-.__,'");
+      Brain.Screen.printAt(135, 140, "   ||   |     \\O)  /^\\ (O/  |");
+      Brain.Screen.printAt(135, 160, "   `\\  |         /   `\\    /");
+      Brain.Screen.printAt(135, 180, "     \\  \\       /      `\\ /");
+      Brain.Screen.printAt(135, 200, "      `\\\\ `-.  /' .---.--.\\");
+      Brain.Screen.printAt(135, 220, "        `\\\\/`~(, '()      ('");
+      Brain.Screen.printAt(135, 240, "         /(O) \\\\   _,.-.,_)");
+      Brain.Screen.printAt(135, 260, "        //  \\\\ `\\\'`      /");
+    }
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
@@ -167,6 +241,19 @@ void usercontrol(void) {
                     // prevent wasted resources.
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //
 // Main will set up the competition functions and callbacks.
