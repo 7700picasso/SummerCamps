@@ -10,38 +10,59 @@
 #include "vex.h"
 
 using namespace vex;
-float pi = 3.14;
-float dia = 4.00;
-float gearRatio = 60.0/48.0;
+
 // A global instance of competition
 competition Competition;
 
 vex::brain Brain;
 
-motor LM = motor(PORT1, ratio18_1, false);
-motor RM = motor(PORT9, ratio18_1, true);
+float dia = 4.0;
+float pi = 3.14;
+float gearRatio = 60/48;
 
+motor FL = motor(PORT1, ratio18_1, true);
+motor FR = motor(PORT9, ratio18_1, false);
+motor BL = motor(PORT5, ratio18_1, true);
+motor BR = motor(PORT10, ratio18_1, false);
+
+controller Controller1 = controller(primary);
 void drive(int Lspeed, int Rspeed, int wt){
-  LM.spin(forward, Lspeed, pct);
-  RM.spin(forward, Rspeed, pct);
+  FL.spin(forward, Lspeed, pct);
+  FR.spin(forward, Rspeed, pct);
+  BL.spin(forward, Lspeed, pct);
+  BR.spin(forward, Rspeed, pct);
   wait(wt, msec );
 }
 
+
+
 void driveBrake(){
-  LM.stop(brake);
-  RM.stop(brake);
+FL.stop(brake);
+  FR.stop(brake);
+  BL.stop(brake);
+  BR.stop(brake);
 }
 
 void inchDrive(float target){
   float x = 0; 
-  LM.setPosition(0, rev);
-  x = LM.position(rev)*dia*pi*gearRatio;
-  while (x > target ) {
-    drive(-50,-50, 10);
-    x = LM.position(rev)*dia*pi*gearRatio;
+  FL.setPosition(0, rev);
+  x = BL.position(rev)*dia*pi*gearRatio;
+
+  if (target >= 0 ){
+  while (x <= target ) {
+    drive(50, 50, 10);
+    x = FL.position(rev)*dia*pi*gearRatio;
     Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
   }
-  driveBrake();
+}
+else if (target <0){
+  while (x <=fabs(target)){
+    drive (-50, -50, 10);
+    x = -FL.position(rev)*dia*pi*gearRatio;
+Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
+  }
+}
+driveBrake();
 }
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -69,7 +90,28 @@ void pre_auton(void){
 /*----------------x=LM.position(rev)*Pi---------------------------------------------------*/
 
 void autonomous(void) {
-  inchDrive(-12);
+  //go forward 36 inches
+  inchDrive(36);
+
+  //wait a bit before each movement
+  wait(300, msec);
+
+  //turn 90 degrees to the left
+  drive(-100, 100, 800);
+  driveBrake();
+
+  //go foward 36 inches.q
+  wait(300, msec);
+  inchDrive(36);
+  wait(300, msec);
+
+  drive(-100, 100, 800);
+  driveBrake();
+
+
+
+
+
   // drive(100, 100, 800);
   // driveBrake();
   // wait(500, msec);
@@ -93,7 +135,13 @@ void autonomous(void) {
 
 void usercontrol(void) {
   // User control code here, inside the loop
-  while (1) {
+  while (true) {
+    int forwardSpeed = Controller1.Axis3.position();
+    int turnSpeed = Controller1.Axis1.position();
+
+    drive( forwardSpeed + turnSpeed, forwardSpeed - turnSpeed, 10);
+
+    
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
