@@ -19,6 +19,8 @@ vex::brain Brain;
 motor lm = motor(PORT19, ratio18_1, false);
 motor rm = motor(PORT15, ratio18_1, true);
 motor arm = motor(PORT13, ratio18_1, false);
+controller Controller1 = controller(primary);
+digital_out claw = digital_out(Brain.ThreeWirePort.F);
 
 //global variables
 float pi = 3.14159;
@@ -50,18 +52,24 @@ void inchDrive(float target, int speed){
   float x = 0; //local variable
   lm.setPosition(0, rev);
   x = lm.position(rev)*dia*pi*gearRatio;
+
+  if (target >= 0) { //if your target is greater than 0 we will drive forward
   while (x < target){
     drive(50, 50, 10);
     x = lm.position(rev)*dia*pi*gearRatio;
     Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
   }
-  while (x > target){
+}
+else if (target < 0){
+  while (x <= fabs (target)){ //target less than 0 the robot will drive backward
     drive(-50, -50, 10);
-    x = lm.position(rev)*dia*pi*gearRatio;
+    x = -lm.position(rev)*dia*pi*gearRatio;
     Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
   }
+}
   driveBrake();
 }
+
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -73,7 +81,6 @@ void inchDrive(float target, int speed){
 /*---------------------------------------------------------------------------*/
 
 void pre_auton(void) {
-
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
 }
@@ -89,10 +96,41 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-inchDrive(50, 50);
-driveBrake();
-inchDrive(-50, 50);
-driveBrake();
+while(true){
+  inchDrive(40, 20);
+  wait(500, msec);
+  drive(50, -50, 700);
+  driveBrake();
+  wait(200, msec);
+  inchDrive(34, 20);
+  wait(200, msec);
+  drive(50, -50, 700);
+  driveBrake();
+  wait(200, msec);
+  inchDrive(15, 20);
+  wait(200, msec);
+  drive(-50, 50, 700);
+  driveBrake();
+  wait(200, msec);
+  inchDrive(16, 20);
+  wait(200, msec);
+  drive(-50, 50, 700);
+  driveBrake();
+  wait(200, msec);
+  inchDrive(36, 20);
+  wait(200, msec);
+  drive(-50, 50, 750);
+  driveBrake();
+  wait(200, msec);
+  inchDrive(40, 20);
+  wait(10000, msec);
+}
+
+
+// inchDrive(50, 50);
+// driveBrake();
+// inchDrive(-50, 50);
+// driveBrake();
 
 
 // while(true){
@@ -149,7 +187,30 @@ driveBrake();
 
 void usercontrol(void) {
   // User control code here, inside the loop
-  while (1) {
+  while (true) {
+    int Lspeed = Controller1.Axis2.position();
+    int Rspeed = Controller1.Axis3.position();
+
+    drive(Lspeed, Rspeed, 10);
+
+    if(Controller1.ButtonR1.pressing()){
+      armMove(100, 10);
+    }
+    else if(Controller1.ButtonR2.pressing()){
+      armMove(-100, 10);
+    }
+    else{
+      armMove(0, 0);
+    }
+    if(Controller1.ButtonL1.pressing()){
+      claw.set(true);
+    }
+    else if(Controller1.ButtonL2.pressing()){
+      claw.set(false);
+    }
+
+
+    //Br
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
