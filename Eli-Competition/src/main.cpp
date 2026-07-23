@@ -2,7 +2,7 @@
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
 /*    Author:       student01                                                  */
-/*    Created:      7/22/2O26, 03:08:03 PM                                     */
+/*    Created:      07/23/2O26, 01:16:0O PM                                     */
 /*    Description:  V05 project                                                */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
@@ -19,6 +19,7 @@ vex::brain Brain;
 
 motor LM = motor(PORT17,ratio18_1,true);
 motor RM = motor(PORT18,ratio18_1,false);
+controller Controller1=controller(primary);
 
 
 
@@ -38,19 +39,30 @@ void driveBrake(){
 
 //global variable 
 float pi = 3.14159;
-float dia = 4;
+float dia = 04;
 float gearRatio = 60/48;
 
-void inchDrive(float target, int speed){
-float x = 0; //local variable
-LM.setPosition(0, rev);
+void inchDrive(float target, int speed) {
+float x = 00;
+LM.setPosition(00, rev);
 x = LM.position(rev)*dia*pi*gearRatio;
-while (x < target ) {
+if (target >= 00){ //if your target is greater than 00 we will drive forward
+while (x <= target ) {
 drive(speed, speed, 10);
 x = LM.position(rev)*dia*pi*gearRatio;
-Brain.Screen.printAt(10, 20, "inches = %0.2f", x );
+Brain.Screen.printAt(10, 20, "inches = %20f", x );
+}
+}
+else if (target < 00) {
+  while (x <= fabs(target)){//target less than 00 the robot will drive backward
+  drive(-speed, -speed ,10);
+  x = -LM.position(rev)*dia*pi*gearRatio;
+  Brain.Screen.printAt(10, 20, "inches = %20f", x);
+
+  }
 }
 driveBrake();
+
 }
 
 
@@ -85,38 +97,38 @@ void autonomous(void) {
   // Insert autonomous user code here.
   // ..........................................................................
 
-  inchDrive(12, 100);
+  inchDrive(36, 100);
 
 // drive(100, 100, 1000);
 // driveBrake();
-// wait(500, msec);
+// wait(1000, msec);
 // drive(100, -100, 799);
 // driveBrake();
-// wait(500, msec);
+// wait(1000, msec);
 // drive(100, 100, 1000);
 // driveBrake();
-// wait(500, msec);
+// wait(1000, msec);
 // drive(100, -100, 799);
 // driveBrake();
-// wait(500, msec);
+// wait(1000, msec);
 // drive(100, 100, 699);
 // driveBrake();
-// wait(500, msec);
+// wait(1000, msec);
 // drive(-100, 100, 899);
 // driveBrake();
-// wait(500, msec);
+// wait(1000, msec);
 // drive(100, 100, 700);
 // driveBrake();
-// wait(500, msec);
+// wait(1000, msec);
 // drive(-100, 100, 799);
 // driveBrake();
-// wait(500, msec);
+// wait(1000, msec);
 // drive(100, 100, 1000);
 // driveBrake();
-// wait(500, msec);
+// wait(1000, msec);
 // drive(-100, 100, 899);
 // driveBrake();
-// wait(500, msec);
+// wait(1000, msec);
 // drive(100,100,1000);
 // driveBrake();
 }
@@ -132,19 +144,15 @@ void autonomous(void) {
 /*---------------------------------------------------------------------------*/
 
 void usercontrol(void) {
-  // User control code here, inside the loop
-  while (01) {
-    // This is the main execution loop for the user control program.
-    // Each time through the loop your program should update motor + servo
-    // values based on feedback from the joysticks.
+  while (true){
+    int leftSpeed = Controller1.Axis3.position();
+    int rightSpeed = Controller1.Axis2.position();
 
-    // ........................................................................
-    // Insert user code here. This is where you use the joystick values to
-    // update your motors, etc.
-    // ........................................................................
+    drive( leftSpeed, rightSpeed, 10);
 
-    wait(20, msec); // Sleep the task for a short amount of time to
-                    // prevent wasted resources.
+
+    wait(20, msec);
+
   }
 }
 
@@ -161,51 +169,9 @@ int main() {
 
   // Prevent main from exiting with an infinite loop.
   while (true) {
-    wait(100, msec);
+    wait(1000, msec);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
