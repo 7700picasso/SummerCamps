@@ -15,10 +15,9 @@ using namespace vex;
 competition Competition;
 vex::brain Brain;
 
-
 vex::motor LM = motor(PORT2, ratio18_1, false);
 vex::motor RM = motor(PORT3, ratio18_1, true);
-
+controller C1 = controller(primary);
 
 float pi = 3.14159;
 float dia = 4.0;
@@ -39,28 +38,26 @@ void driveBrake(){
 
 void inchDrive(float target){
 
-
-
-
 float x = 0; //loacal variable
   LM.setPosition(0, rev);
   x = LM.position(rev)*dia*pi*gearRaitio;
   
   if (target >= 0 ) {
+    while (x <= target ) {
+      drive(50, 50, 10);  
+      x = LM.position(rev)*dia*pi*gearRaitio;
+      Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
 
-
-
+    }
   }
-  
-  while (x < target ) {
-    drive(50, 50, 10);
-    x = LM.position(rev)*dia*pi*gearRaitio;
-    Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
+  else if (target <0){
+    while (x <=fabs(target)){
+      drive(-50, -50, 10);
+      x = LM.position(rev)*dia*pi*gearRaitio;
+      Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
+    }
   }
-
-
-
-  driveBrake();
+  drive(0, 0, 0);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -90,8 +87,17 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
   void autonomous(void) {
-  inchDrive(29);
- 
+    inchDrive(22);
+    wait(500, msec);
+    drive(-50, 50, 550);
+    driveBrake();
+    wait(500, msec);
+    inchDrive(21);
+    wait(500, msec);
+    drive(-50, 50, 600);
+    driveBrake();
+
+
 }
 
 
@@ -106,19 +112,13 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void usercontrol(void) {
-  // User control code here, inside the loop
   while (1) {
-    // This is the main execution loop for the user control program.
-    // Each time through the loop your program should update motor + servo
-    // values based on feedback from the joysticks.
+    int leftSpeed = C1.Axis2.position();
+    int rightSpeed = C1.Axis3.position();
 
-    // ........................................................................
-    // Insert user code here. This is where you use the joystick values to
-    // update your motors, etc.
-    // ........................................................................
+    drive(leftSpeed, rightSpeed, 10);
 
-    wait(20, msec); // Sleep the task for a short amount of time to
-                    // prevent wasted resources.
+    wait(20, msec);
   }
 }
 
