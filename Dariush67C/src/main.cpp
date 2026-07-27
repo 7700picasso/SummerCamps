@@ -17,10 +17,12 @@ competition Competition;
 // define your global instances of motors and other devices here
 
 vex::brain Brain;
-motor LM = motor(PORT1, ratio18_1, true);
-motor RM = motor(PORT19, ratio18_1, false);
-motor BLM = motor(PORT17, ratio18_1, true);
-motor BRM = motor(PORT20, ratio18_1, false);
+motor LM = motor(PORT1, ratio18_1, false);
+motor RM = motor(PORT19, ratio18_1, true);
+motor BLM = motor(PORT17, ratio18_1, false);
+motor BRM = motor(PORT20, ratio18_1, true);
+inertial Gyro = inertial(PORT10);
+
 controller Potato = controller(primary);
 double pi = 3.14159265;
 float dia = 4.0;
@@ -41,8 +43,37 @@ void driveBrake(){
   BLM.stop(brake);
   BRM.stop(brake);
 }
-
-
+void gyroTurn(float target){
+  float heading=0.0;
+  float accuracy=2.0;
+  float error=target-heading;
+  float kp=0.4;
+  float speed=kp*error;
+  Gyro.setRotation(0.0, degrees);
+  while(fabs(error)>=accuracy){
+    speed=kp*error;
+    drive(-speed, speed, 10);
+    heading=Gyro.rotation();
+    error = target-heading;
+  }
+  driveBrake();
+}
+void kpDrive(float inches){
+  float x=0.0;
+  LM.setPosition(0, rev);
+  x = LM.position(rev)*dia*pi*gearRatio;
+  float accuracy=1.0;
+  float error=inches-x;
+  float kp=7;
+  float speed=kp*error;
+  while(fabs(error)>=accuracy){
+    x = LM.position(rev)*dia*pi*gearRatio;
+    speed=kp*error;
+    drive(speed, speed, 10);
+    error = inches-x;
+  }
+  driveBrake();
+}
 void inchDrive(float target, int speed){
   float x = 0;
   LM.setPosition(0, rev);
@@ -95,27 +126,27 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  inchDrive(25, 25);
+  kpDrive(25);
   wait(300, msec);
-  drive(-25, 25, 780);
+  gyroTurn(90);
   driveBrake();
   wait(300, msec);
-  inchDrive(20, 25);
+  kpDrive(20);
   wait(300, msec);
-  drive(-25, 25, 760);
+  gyroTurn(90);
   driveBrake();
   wait(300, msec);
-  inchDrive(25, 25);
+  kpDrive(25);
   wait(300, msec);
-  drive(27, -25, 760);
+  gyroTurn(-90);
   driveBrake();
   wait(300, msec);
-  inchDrive(19, 25);
+  kpDrive(19);
   wait(300, msec);
-  drive(-25, 25, 740);
+  gyroTurn(90);
   driveBrake();
   wait(300, msec);
-  inchDrive(-21, 25);
+  kpDrive(-21);
   driveBrake();
 }
   // drive(50, 50, 1000);
@@ -168,13 +199,12 @@ void autonomous(void) {
 
 void usercontrol(void) {
   // User control code here, inside the loop
+
   float speedCap = 1;
   while (true) {
     int leftSpeed = Potato.Axis3.position();
     int rightSpeed = Potato.Axis2.position();
-
-    drive(static_cast<int>(leftSpeed*speedCap), static_cast<int>(rightSpeed*speedCap), 10);
-
+    drive(static_cast<int>(-leftSpeed*speedCap), static_cast<int>(-rightSpeed*speedCap), 10);
     if(Potato.ButtonL1.pressing()){
       speedCap = 0.25;
     }
