@@ -14,8 +14,9 @@ using namespace vex;
 // A global instance of competition
 competition Competition;
 brain Brain;
-motor leftMotor(PORT1, ratio18_1, false);
-motor rightMotor(PORT2, ratio18_1, true);
+motor leftMotor(PORT1, ratio18_1, true);
+motor rightMotor(PORT2, ratio18_1, false);
+motor armMotor(PORT4, ratio18_1, false);
 controller Controller1 = controller(primary);
 
 // define your global instances of motors and other devices here
@@ -30,15 +31,27 @@ controller Controller1 = controller(primary);
 /*  not every time that the robot is disabled.                               */
 /*---------------------------------------------------------------------------*/
 void drive(int lspeed, int rspeed, int wt){
-  leftMotor.spin(foward,lspeed, pct);
-  rightMotor.spin(foward, rspeed, pct);
+  leftMotor.spin(forward,lspeed, pct);
+  rightMotor.spin(forward, rspeed, pct);
+
   wait(wt, msec);
+}
+
+void armMove(int speed, int waittime){
+  armMotor.spin(forward, speed, percent);
+  wait(waittime, msec);
+}
+void driveBrake(){
+  leftMotor.stop(brake);
+  rightMotor.stop(brake);
 }
 void pre_auton(void) {
 
+}
+
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
-}
+
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
@@ -72,6 +85,17 @@ void usercontrol(void) {
 
     int left = Controller1.Axis3.position();
     int right = Controller1.Axis2.position();
+
+    drive(left, right, 10);
+
+    if(Controller1.ButtonR1.pressing()){
+    armMove(50, 10);
+   }else if(Controller1.ButtonL1.pressing()){
+    armMove(-50, 10);
+    }
+    else{
+      armMotor.stop(brake);
+    }
 
     drive(left, right, 10);
     // This is the main execution loop for the user control program.
