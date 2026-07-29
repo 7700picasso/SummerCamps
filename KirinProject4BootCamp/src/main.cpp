@@ -13,7 +13,10 @@ using namespace vex;
 brain Brain;
 motor leftMontor(PORT1, ratio18_1, false);
 motor rightMotor(PORT2, ratio18_1, true);
+
 controller Controller1 = controller(primary);
+
+motor arm = motor(PORT3, ratio18_1, false);
 
 
 // A global instance of competition
@@ -41,6 +44,13 @@ void brakeMotor(){
   leftMontor.stop(brake);
   rightMotor.stop(brake);
 }
+
+void armMove(int speed, int waittime){
+  arm.spin(forward, speed, percent);
+  wait(waittime,msec);
+
+}
+
 void pre_auton(void) {
 
   // All activities that occur before the competition starts
@@ -86,6 +96,19 @@ void usercontrol(void) {
 
 
     drive(left, right, 10);
+
+
+    if (Controller1.ButtonL1.pressing()){
+      armMove(-50, 10);
+    }
+    else if (Controller1.ButtonL2.pressing()){
+      armMove (-50,10);
+    }
+    else{
+      arm.stop(brake);
+    }
+
+
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
