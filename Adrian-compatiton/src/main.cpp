@@ -15,9 +15,12 @@ using namespace vex;
 competition Competition;
 vex::brain Brain;
 
-vex::motor LM = motor(PORT2, ratio18_1, false);
-vex::motor RM = motor(PORT3, ratio18_1, true);
+vex::motor LM = motor(PORT3, ratio18_1, true);
+vex::motor RM = motor(PORT2, ratio18_1, false);
+vex::motor LB = motor(PORT5, ratio18_1, true);
+vex::motor RB = motor(PORT6, ratio18_1, false);
 controller C1 = controller(primary);
+inertial Gyro = inertial(PORT4);
 
 float pi = 3.14159;
 float dia = 4.0;
@@ -26,6 +29,9 @@ float gearRaitio = 60.0/48.0;
 void drive(int lspeed, int rspeed, int wt){
   LM.spin(forward, lspeed, pct);
   RM.spin(forward, rspeed, pct);
+  LB.spin(forward, lspeed, pct);
+  RB.spin(forward, rspeed, pct);
+
   wait(wt, msec);
 
 }
@@ -33,10 +39,12 @@ void drive(int lspeed, int rspeed, int wt){
 void driveBrake(){
   LM.stop(brake);
   RM.stop(brake);
+  LB.stop(brake);
+  RB.stop(brake);
 }
 
 
-void inchDrive(float target){
+void inchDrive(float target, int speed){
 
 float x = 0; //loacal variable
   LM.setPosition(0, rev);
@@ -44,7 +52,7 @@ float x = 0; //loacal variable
   
   if (target >= 0 ) {
     while (x <= target ) {
-      drive(50, 50, 10);  
+      drive(speed, speed, 10);  
       x = LM.position(rev)*dia*pi*gearRaitio;
       Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
 
@@ -52,14 +60,30 @@ float x = 0; //loacal variable
   }
   else if (target <0){
     while (x <=fabs(target)){
-      drive(-50, -50, 10);
+      drive(-speed, -speed, 10);
       x = LM.position(rev)*dia*pi*gearRaitio;
       Brain.Screen.printAt(10, 20, "inches = %0.2f", x);
     }
   }
-  drive(0, 0, 0);
+  driveBrake();
 }
 
+void gyroTurn(float target) {
+  float heading = 0.0;
+  float accuracy= 2.0;
+  float error = target - heading;
+  float kp = 0.4;
+  float speed = kp * error;
+
+  Gyro.setRotation(0.0, degrees);
+  while (fabs(error) >= accuracy) {
+    speed = kp * error;
+    drive(speed, -speed, 10);
+    heading = Gyro.rotation();
+    error = target - heading;
+  }
+  driveBrake();
+}
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -86,18 +110,24 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-  void autonomous(void) {
-    inchDrive(22);
-    wait(500, msec);
-    drive(-50, 50, 550);
-    driveBrake();
-    wait(500, msec);
-    inchDrive(21);
-    wait(500, msec);
-    drive(-50, 50, 600);
-    driveBrake();
-
-
+void autonomous(void) {
+  inchDrive(29, 30);
+  wait(500, msec);
+  gyroTurn(90);
+  wait(500, msec);
+  inchDrive(31, 30);
+  wait(500, msec);
+  gyroTurn(90);
+  wait(500, msec);
+  inchDrive(39, 30);
+  wait(500, msec);
+  gyroTurn(-90);
+  wait(500, msec);
+  inchDrive(30, 30);
+  wait(500, msec);
+  gyroTurn(-90);
+  wait(500, msec);
+  inchDrive(31, 30);
 }
 
 
@@ -113,8 +143,8 @@ void pre_auton(void) {
 
 void usercontrol(void) {
   while (1) {
-    int leftSpeed = C1.Axis2.position();
-    int rightSpeed = C1.Axis3.position();
+    int leftSpeed = C1.Axis3.position();
+    int rightSpeed = C1.Axis2.position();
 
     drive(leftSpeed, rightSpeed, 10);
 
