@@ -94,10 +94,14 @@ void pre_auton(){
 
 void autonomous(void) {
 
+  
+  claw.set(true);
   drive(50,50,150);
   armMove(50,500);
-  drive(-50,50,800);
+  drive(-50,50,700);
   arm.stop(brake);
+  drive(-50,-50,400);
+  armMove(-50,400);
   brakeMotor();
   // ..........................................................................
   // Insert autonomous user code here.
