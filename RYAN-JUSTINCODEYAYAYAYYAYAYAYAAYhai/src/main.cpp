@@ -17,6 +17,7 @@ competition Competition;
 brain Brain;
 motor justin(PORT11, ratio18_1, false);
 motor ryan(PORT20, ratio18_1, true);
+motor arrrmm(PORT12, ratio18_1, false);
 controller something = controller(primary);
 // define your global instances of motors and other devices here
 
@@ -37,6 +38,11 @@ void pre_auton() {
 void drive(int justinspeed, int ryanspeed, int wt){
   justin.spin(forward, justinspeed, pct);
   ryan.spin(forward, ryanspeed, pct);
+  wait(wt, msec);
+}
+
+void armMove(int ishowspeed, int wt){
+  arrrmm.spin(forward,ishowspeed, percent);
   wait(wt, msec);
 }
 
@@ -105,6 +111,16 @@ void usercontrol(void) {
     int rright = something.Axis2.position();
 
     drive(jleft, rright, 10);
+
+    if (something.ButtonL1.pressing()){
+      armMove(50, 10);
+    }
+    else if (something.ButtonL2.pressing()){
+      armMove(-50, 10);
+    }
+    else{
+      arrrmm.stop(brake);
+    }
     wait(20, msec); 
   }
 }
