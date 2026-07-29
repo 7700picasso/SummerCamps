@@ -15,8 +15,14 @@ using namespace vex;
 competition Competition;
 
 brain Brain;
+
+pneumatics claw = pneumatics(Brain.ThreeWirePort.A);
+
+inertial isensor = inertial(PORT4);
+
 motor justin(PORT11, ratio18_1, false);
 motor ryan(PORT20, ratio18_1, true);
+motor arm(PORT3, ratio18_1, false);
 controller something = controller(primary);
 // define your global instances of motors and other devices here
 
@@ -40,10 +46,57 @@ void drive(int justinspeed, int ryanspeed, int wt){
   wait(wt, msec);
 }
 
+void armMove(int ishowspeed, int waittime){
+  arm.spin(forward, ishowspeed, percent);
+  wait(waittime, msec);
+}
+
 void brakeMotor(){
   justin.stop(brake);
   ryan.stop(brake);
 }
+
+void inchDrive(double inches, int maxSpeed, int minSpeed){
+  justin.setPosition(0, degrees);
+
+  double wheelDiameter = 3.25;
+  double pi = 3.14159;
+  double gearRatio = 1.0/1.0;
+
+  double circumference = wheelDiameter * pi;
+  double wheelRotations = inches / circumference;
+  double motorRotations = wheelRotations * gearRatio;
+  double targetDegrees = motorRotations * 360.0;
+
+  double kP = 0.1;
+  double error = targetDegrees - justin.position(degrees);
+
+
+  while (fabs(error) > 5){
+    error = targetDegrees - justin.position(degrees);
+
+    double speed = fabs(error) * kP;
+
+    if (speed > maxSpeed){
+      speed = maxSpeed;
+    }
+
+    if (speed < minSpeed){
+      speed = minSpeed;
+    }
+
+    if (error > 0){
+      drive(speed, speed, 10);
+    }
+    else{
+      drive(-speed, -speed, 10);
+    }
+
+  }
+
+  brakeMotor();
+}
+
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /*                              Autonomous Task                              */
@@ -58,33 +111,18 @@ void autonomous(void) {
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
-  drive(50, 50, 1000);
-  brakeMotor();
-  drive(50, -50, 650);
-  brakeMotor();
-  drive(50, 50, 1400);
-  brakeMotor();
-  drive(-50, 50, 750);
-  brakeMotor();
-  drive(50, 50, 1750);
-  brakeMotor();
-  drive(-50, 50, 800);
-  brakeMotor();
-  drive(50, 50, 1650);
-  brakeMotor();
-  drive(50, -50, 590);
-  brakeMotor();
-  drive(50, 50, 1700);
-  brakeMotor();
-  drive(-50, 50, 690);
-  brakeMotor();
-  drive(50, 50, 1500);
-  brakeMotor();
-  drive(-50, -50, 1750);
-  brakeMotor();
-  drive(50, -50, 650);
-  drive(50, 50, 1400);
-  brakeMotor();
+  claw.close();
+  armMove(50, 100);
+  inchDrive(14, 80, 30);
+  drive(50,-50,850);
+  inchDrive(7.5, 80, 30);
+  armMove(-50, 1000);
+  claw.open();
+  inchdrive(-7.5,80,30);
+  armmove(-50,100);
+  claw.close();
+  drive(-50,50,850);
+
 
 }
 
@@ -105,6 +143,23 @@ void usercontrol(void) {
     int rright = something.Axis2.position();
 
     drive(jleft, rright, 10);
+
+    if (something.ButtonL1.pressing()){
+      armMove(50, 10);
+    }
+    else if(something.ButtonL2.pressing()){
+      armMove(-50, 10);
+    }
+    else{
+      arm.stop(brake);
+    }
+
+    if(something.ButtonR1.pressing()){
+      claw.open();
+    }
+    else if(something.ButtonR2.pressing()){
+      claw.close();
+    }
     wait(20, msec); 
   }
 }
