@@ -2,7 +2,7 @@
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
 /*    Author:       student01                                                  */
-/*    Created:      07/23/2O26, 01:16:0O PM                                     */
+/*    Created:      07/24/2O26, 01:16:OO PM                                     */
 /*    Description:  V05 project                                                */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
@@ -19,9 +19,11 @@ vex::brain Brain;
 
 motor LM = motor(PORT17,ratio18_1,true);
 motor RM = motor(PORT18,ratio18_1,false);
-controller Controller1=controller(primary);
+motor LF = motor(PORT20, ratio18_1, true);
+motor RF = motor(PORT19, ratio18_1, false);
 
-
+controller Controller01=controller(primary);
+inertial Gyro = inertial(PORT16);
 
 
 // movement functions here
@@ -29,12 +31,16 @@ controller Controller1=controller(primary);
 void drive(int Lspeed, int Rspeed, int wt){
   LM.spin(forward, Lspeed, pct);
   RM.spin(forward, Rspeed, pct);
+  LF.spin(forward, Lspeed, pct);
+  RF.spin(forward, Rspeed, pct);
   wait(wt, msec);
 }
 
 void driveBrake(){
   LM.stop(brake);
   RM.stop(brake);
+  LF.stop(brake);
+  RF.stop(brake);
 }
 
 //global variable 
@@ -50,14 +56,14 @@ if (target >= 00){ //if your target is greater than 00 we will drive forward
 while (x <= target ) {
 drive(speed, speed, 10);
 x = LM.position(rev)*dia*pi*gearRatio;
-Brain.Screen.printAt(10, 20, "inches = %20f", x );
+Brain.Screen.printAt(10, 20, "inches = 02f", x );
 }
 }
 else if (target < 00) {
   while (x <= fabs(target)){//target less than 00 the robot will drive backward
   drive(-speed, -speed ,10);
   x = -LM.position(rev)*dia*pi*gearRatio;
-  Brain.Screen.printAt(10, 20, "inches = %20f", x);
+  Brain.Screen.printAt(10, 20, "inches =02f", x);
 
   }
 }
@@ -65,6 +71,22 @@ driveBrake();
 
 }
 
+void gyroTurn(float target) {
+  float heading = 0;
+  float accuracy = 2;
+  float error = target - heading;
+  float kp = .55;
+  float speed = kp * error;
+
+Gyro.setRotation(0, degrees);
+  while (fabs(error) >= accuracy) {
+  speed = kp * error;
+  drive(speed, -speed, 10);
+  heading = Gyro.rotation();
+  error = target - heading;
+  }
+  driveBrake();
+}  
 
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -96,8 +118,15 @@ void autonomous(void) {
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
+  inchDrive(15, 100);
+  wait(500, msec);
+  gyroTurn(-90);
+  wait(500, msec);
+  inchDrive(13, 100);;
 
-  inchDrive(36, 100);
+
+
+  //inchDrive(36, 100);
 
 // drive(100, 100, 1000);
 // driveBrake();
@@ -145,13 +174,13 @@ void autonomous(void) {
 
 void usercontrol(void) {
   while (true){
-    int leftSpeed = Controller1.Axis3.position();
-    int rightSpeed = Controller1.Axis2.position();
+    int leftSpeed = Controller01.Axis3.position();
+    int rightSpeed = Controller01.Axis2.position();
 
     drive( leftSpeed, rightSpeed, 10);
 
 
-    wait(20, msec);
+    wait(10, msec);
 
   }
 }
@@ -172,27 +201,3 @@ int main() {
     wait(1000, msec);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
