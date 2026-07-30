@@ -18,6 +18,7 @@ brain Brain;
 motor leftMotor(PORT3, ratio18_1, true);
 motor rightMotor(PORT2, ratio18_1, false);
 controller Controller1 = controller(primary);
+motor arm = motor(PORT4, ratio18_1, false);
 // define your global instances of motors and other devices here
 
 /*---------------------------------------------------------------------------*/
@@ -34,7 +35,10 @@ void drive(int lspeed, int rspeed, int wt){
   rightMotor.spin(forward, rspeed, pct);
   wait(wt, msec);
 }
-
+void armMove(int speed, int waittime){
+  arm.spin(forward, speed, percent);
+  wait(waittime, msec);
+}
 void brakeMotor() {
   leftMotor.stop(brake);
   rightMotor.stop(brake);
@@ -80,6 +84,17 @@ void usercontrol(void) {
     int right = Controller1.Axis2.position();
 
     drive(left, right, 10);
+
+    if(Controller1.ButtonL1.pressing()){
+      armMove(50, 10);
+    }
+    else if(Controller1.ButtonL2.pressing()){
+      armMove(-50, 10);
+    }
+    else{
+      arm.stop(brake);
+    }
+    
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.

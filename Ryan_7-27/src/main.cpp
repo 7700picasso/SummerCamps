@@ -17,6 +17,7 @@ brain Brain;
 motor leftMotor(PORT1, ratio18_1, true);
 motor rightMotor(PORT2, ratio18_1, false);
 motor armMotor(PORT4, ratio18_1, false);
+digital_out claw (Brain.ThreeWirePort.A); 
 controller Controller1 = controller(primary);
 
 // define your global instances of motors and other devices here
@@ -64,9 +65,8 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  // ..........................................................................
-  // Insert autonomous user code here.
-  // ..........................................................................
+  
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -83,21 +83,30 @@ void usercontrol(void) {
   // User control code here, inside the loop
   while (1) {
 
-    int left = Controller1.Axis3.position();
-    int right = Controller1.Axis2.position();
+    //drive
+    int left = Controller1.Axis2.position();
+    int right = Controller1.Axis3.position();
 
     drive(left, right, 10);
-
-    if(Controller1.ButtonR1.pressing()){
+    //Arm Movement
+    if(Controller1.ButtonL1.pressing()){
     armMove(50, 10);
-   }else if(Controller1.ButtonL1.pressing()){
+   }else if(Controller1.ButtonL2.pressing()){
     armMove(-50, 10);
     }
     else{
       armMotor.stop(brake);
     }
 
-    drive(left, right, 10);
+      //Claw Movement
+      if(Controller1.ButtonR1.pressing()){
+    claw.set(true); 
+   }else if(Controller1.ButtonR2.pressing()){
+    claw.set(false); 
+    }
+  
+
+
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
@@ -122,6 +131,7 @@ int main() {
 
   // Run the pre-autonomous function.
   pre_auton();
+  
 
   // Prevent main from exiting with an infinite loop.
   while (true) {
