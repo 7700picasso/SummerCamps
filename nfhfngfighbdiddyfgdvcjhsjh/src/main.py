@@ -36,6 +36,8 @@ def inchDrive(inches):
     while x<inches:
         drive(50,50,50)
     x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
+    error = inches - x
+    kp = 10
     brain.screen.print_at("inches =",x,x=0,y=40)
     driveStop()
 

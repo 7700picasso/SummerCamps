@@ -19,6 +19,7 @@ motor rightMotor(PORT2, ratio18_1, false);
 controller Controller1 = controller(primary);
 motor arm = motor(PORT1, ratio18_1, false);
 pneumatics claw = pneumatics(Brain.ThreeWirePort.H);
+inertial isensor = inertial(PORT20);
 
 // define your global instances of motors and other devices here
 
@@ -85,8 +86,27 @@ void InchDrivePID(double inches, int maxSpeed, int minSpeed) {
   brakeMotor();
 }
 
-void pre_auton(){
+void turnP(double targetDegrees, int maxSpeed, int minSpeed) {
+  isensor.setRotation(0, degrees);
 
+  double kP = 0.1;
+  double error = targetDegrees - isensor.rotation(degrees);
+
+  while (fabs(error) > 1.0) {
+    error = targetDegrees - isensor.rotation(degrees);
+    double speed = fabs(error) * kP;
+
+    if (speed > maxSpeed) {
+      speed = maxSpeed;
+    }
+    if (speed < minSpeed) {
+      speed = minSpeed;
+    }
+  }
+}
+
+void pre_auton(void) {
+  isensor.calibrate();
 }
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
@@ -126,10 +146,10 @@ void usercontrol(void) {
 
     drive(left, right, 10);
 
-    if(Controller1.ButtonA.pressing()){
+    if(Controller1.ButtonL1.pressing()){
   armMove(50, 10);
 }
-  else if(Controller1.ButtonB.pressing()){
+  else if(Controller1.ButtonL2.pressing()){
   armMove(-50, 10);
 }
   else{
