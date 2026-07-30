@@ -17,9 +17,12 @@ competition Competition;
 brain Brain;
 motor justin(PORT11, ratio18_1, false);
 motor ryan(PORT20, ratio18_1, true);
-motor arrrmm(PORT12, ratio18_1, false);
+motor arrrmm(PORT3, ratio18_1, false);
 controller something = controller(primary);
-digital_out Claw (Brain.ThreeWirePort.A); 
+
+pneumatics claw = pneumatics(Brain.ThreeWirePort.A); 
+
+inertial isensor = inertial(PORT10);
 // define your global instances of motors and other devices here
 
 /*---------------------------------------------------------------------------*/
@@ -33,7 +36,7 @@ digital_out Claw (Brain.ThreeWirePort.A);
 /*---------------------------------------------------------------------------*/
 
 void pre_auton() {
- 
+  isensor.calibrate();
 }
 
 void drive(int justinspeed, int ryanspeed, int wt){
@@ -42,31 +45,84 @@ void drive(int justinspeed, int ryanspeed, int wt){
   wait(wt, msec);
 }
 
-void armMove(int ishowspeed, int wt){
-  arrrmm.spin(forward,ishowspeed, percent);
-  wait(wt, msec);
-}
-
 void brakeMotor(){
   justin.stop(brake);
   ryan.stop(brake);
 }
 
-void inchDrive(double inches) { 
-  justin.setPosition(0, rev); 
-  double x = 3.25*M_PI* justin.position(rev); 
-  double error = inches - x; 
-  double Kp = 0.5; 
-  double speed = error *Kp; 
-
-  while (fabs(error)>2) { 
-    drive(speed, speed, 10); 
-    error = inches - x; 
-    speed = error*Kp; 
-  
-  }
-  brakeMotor(); 
+void armMove(int ishowspeed, int wt){
+  arrrmm.spin(forward, ishowspeed, percent);
+  wait(wt, msec);
 }
+
+void turnP(double targetdegrees, int maxSpeed, int minSpeed){
+  isensor.setRotation(0, degrees);
+
+  double kP = 0.1;
+  double error = targetdegrees - isensor.rotation(degrees);
+
+  while (fabs(error) > 1.0) {
+    error = targetdegrees - isensor.rotation(degrees);
+    double speed = fabs(error) * kP;
+
+    if (speed>maxSpeed){
+      speed = maxSpeed;
+    }
+
+    if (speed < minSpeed){
+      speed = minSpeed;
+    }
+
+    if (error > 0){
+      drive(speed, -speed, 10);
+    }
+    else{
+      drive(-speed, speed, 10);
+    }
+     wait(10, msec);
+  }
+  brakeMotor();
+}
+
+void inchDrive(double inches, int maxSpeed, int minSpeed){
+  justin.setPosition(0, degrees);
+
+  double wheelDiameter = 3.25;
+  double pi = 3.14156;
+  double gearratio = 1.0 / 1.0;
+
+  double circumference = wheelDiameter * pi;
+  double wheelrotations = inches / circumference;
+  double motorrotations = wheelrotations * gearratio;
+  double targetdegrees = motorrotations * 360.0;
+
+  double kp = 0.1;
+  double error = targetdegrees - justin.position(degrees);
+
+  while(fabs(error) > 5){
+    error = targetdegrees - justin.position(degrees);
+
+    double speed = fabs(error) * kp;
+
+    if (speed > maxSpeed){
+      speed = maxSpeed;
+    }
+
+    if (speed < minSpeed){
+      speed = minSpeed;
+    }
+
+    if (error > 0){
+      drive(speed, speed, 10);
+    }
+    else{
+      drive(-speed, -speed, 10);
+    }
+  }
+  brakeMotor();
+}
+
+
 
 void turnLeft(int time){
   drive(50, -50, time);
@@ -74,6 +130,10 @@ void turnLeft(int time){
 
 void turnRight(int time){
   drive(-50, 50, time);
+}
+
+void stopwait(int time){
+  wait(time, msec);
 }
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
@@ -89,13 +149,23 @@ void autonomous(void) {
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
-  Claw.set(false);
+  // claw.close();
+  // armMove(50, 100);
+  // inchDrive(18, 80, 30);
+  // turnP(85, 50, 20);
+  // inchDrive(8, 80, 30);
+  // armMove(-30, 100);
+  // stopwait(1500);
+  // claw.open();
+
+  claw.close();
   armMove(50, 100);
-  inchDrive(14); 
-  turnRight(850);
-  inchDrive(4);
-  armMove(-50, 100);
-  Claw.set(true);
+  inchDrive(15, 80, 30);
+  turnP(-85, 50, 20);
+  inchDrive(8, 80, 30);
+  armMove(-30, 100);
+  stopwait(1500);
+  claw.open();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -127,10 +197,10 @@ void usercontrol(void) {
     }
 
      if (something.ButtonR1.pressing()){
-      Claw.set(true); 
+      claw.open();
     }
     else if (something.ButtonR2.pressing()){
-      Claw.set(false); 
+      claw.close();
     }
 
 
