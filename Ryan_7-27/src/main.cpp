@@ -14,9 +14,11 @@ using namespace vex;
 // A global instance of competition
 competition Competition;
 brain Brain;
-motor leftMotor(PORT1, ratio18_1, false);
-motor rightMotor(PORT2, ratio18_1, true);
+motor leftMotor(PORT1, ratio18_1, true);
+motor rightMotor(PORT2, ratio18_1, false);
+motor armMotor(PORT4, ratio18_1, false);
 controller Controller1 = controller(primary);
+pneumatics claw = pneumatics(Brain.ThreeWirePort.A);
 
 // define your global instances of motors and other devices here
 
@@ -30,15 +32,62 @@ controller Controller1 = controller(primary);
 /*  not every time that the robot is disabled.                               */
 /*---------------------------------------------------------------------------*/
 void drive(int lspeed, int rspeed, int wt){
-  leftMotor.spin(foward,lspeed, pct);
-  rightMotor.spin(foward, rspeed, pct);
+  leftMotor.spin(forward,lspeed, pct);
+  rightMotor.spin(forward, rspeed, pct);
+
   wait(wt, msec);
 }
+
+void armMove(int speed, int waittime){
+  armMotor.spin(forward, speed, percent);
+  wait(waittime, msec);
+}
+void driveBrake(){
+  leftMotor.stop(brake);
+  rightMotor.stop(brake);
+}
+void inchDrive(double inches, int maxSpeed, int minSpeed){
+  leftMotor.setPosition(0, degrees);
+
+  double wheelDiameter = 3.25;
+  double pi = 3.14159;
+  double gearRatio = 1.0 / 1.0;
+
+  double circumfrence = wheelDiameter * pi;
+  double wheelRotations = inches / circumfrence;
+  double motorRotations = wheelRotations * gearRatio;
+  double targetDegrees = motorRotations * 360.0;
+
+  double kP = 0.1; 
+  double error = targetDegrees - leftMotor.position(degrees);
+
+  while (fabs(error) > 5) {
+    error = targetDegrees - leftMotor.position(degrees);
+    double speed = fabs(error) * kP;
+
+    if (speed > maxSpeed){
+      speed = maxSpeed;}
+
+      if (speed < minSpeed){
+        speed = minSpeed;
+      }
+      if (error > 0 ){
+        drive(speed, speed, 10);
+      } else{
+        drive(-speed, -speed, 10);
+      }
+  }
+
+  driveBrake();
+}
+
 void pre_auton(void) {
+
+}
 
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
-}
+
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
@@ -51,6 +100,8 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
+  inchDrive(-12,100,50);  
+ drive(-100,100,600);
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
@@ -70,8 +121,25 @@ void usercontrol(void) {
   // User control code here, inside the loop
   while (1) {
 
-    int left = Controller1.Axis3.position();
-    int right = Controller1.Axis2.position();
+    int left = Controller1.Axis2.position();
+    int right = Controller1.Axis3.position();
+
+    drive(left, right, 10);
+
+    if(Controller1.ButtonR1.pressing()){
+    armMove(50, 10);
+   }else if(Controller1.ButtonL1.pressing()){
+    armMove(-50, 10);
+    }
+    else{
+      armMotor.stop(brake);
+    }
+    if(Controller1.ButtonL2.pressing()){
+      claw.set(true); 
+    }
+    else if(Controller1.ButtonR2.pressing()){
+      claw.set(false); 
+    }
 
     drive(left, right, 10);
     // This is the main execution loop for the user control program.
