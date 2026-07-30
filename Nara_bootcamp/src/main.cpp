@@ -18,9 +18,8 @@ motor leftMotor(PORT3, ratio18_1, true);
 motor rightMotor(PORT2, ratio18_1, false);
 controller Controller1 = controller(primary);
 motor arm = motor(PORT1, ratio18_1, false);
-pneumatics claw = pneumatics(Brain.ThreeWirePort.H);
 inertial isensor = inertial(PORT20);
-
+pneumatics claw = pneumatics(Brain.ThreeWirePort.H); 
 // define your global instances of motors and other devices here
 
 /*---------------------------------------------------------------------------*/
@@ -101,8 +100,15 @@ void turnP(double targetDegrees, int maxSpeed, int minSpeed) {
     }
     if (speed < minSpeed) {
       speed = minSpeed;
+    if (error > 0) {
+      drive(speed, -speed, 10);
+    } else {
+      drive(-speed, speed, 10);
+    }
+    wait(10, msec);
     }
   }
+  brakeMotor();
 }
 
 void pre_auton(void) {
@@ -123,8 +129,12 @@ void pre_auton(void) {
 
 void autonomous(void) {
   // ..........................................................................
-  InchDrivePID(-96, 80, 10);
-  brakeMotor(); 
+  InchDrivePID(18, 70, 20);
+  claw.open();
+  armMove(20, 2000);
+  arm.stop();
+  claw.close();
+  turnP(-90, -70, -20);
   // ..........................................................................
 }
 
