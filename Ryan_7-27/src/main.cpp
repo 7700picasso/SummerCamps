@@ -6,7 +6,6 @@
 /*    Description:  V5 project                                                */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
-
 #include "vex.h"
 
 using namespace vex;
@@ -14,12 +13,12 @@ using namespace vex;
 // A global instance of competition
 competition Competition;
 brain Brain;
-motor leftMotor(PORT1, ratio18_1, true);
-motor rightMotor(PORT2, ratio18_1, false);
+motor leftMotor(PORT2, ratio18_1, false);
+motor rightMotor(PORT1, ratio18_1, true);
 motor armMotor(PORT4, ratio18_1, false);
 controller Controller1 = controller(primary);
 pneumatics claw = pneumatics(Brain.ThreeWirePort.A);
-
+inertial isensor = inertial(PORT5);
 // define your global instances of motors and other devices here
 
 /*---------------------------------------------------------------------------*/
@@ -81,8 +80,36 @@ void inchDrive(double inches, int maxSpeed, int minSpeed){
   driveBrake();
 }
 
-void pre_auton(void) {
+void turnP(double targetDegrees, int maxSpeed, int minSpeed) {
+  isensor.setRotation(0, degrees);
 
+  double kP = 0.1;
+  double error = targetDegrees - isensor.rotation(degrees);
+
+  while (fabs(error) > 1.0) {
+    error = targetDegrees - isensor.rotation(degrees);
+    double speed = fabs(error) * kP;
+
+   if (speed > maxSpeed) {
+      speed = maxSpeed;
+   }
+    if ( speed < minSpeed) {
+      speed = minSpeed;
+    }
+
+    if (error > 0 ){
+      drive(speed, -speed, 10);
+    } else {
+      drive(-speed, speed, 10);
+    }
+    wait(10, msec);
+  }
+  driveBrake();
+
+}
+
+void pre_auton(void) {
+isensor.calibrate();
 }
 
   // All activities that occur before the competition starts
@@ -100,8 +127,8 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  inchDrive(-12,100,50);  
- drive(-100,100,600);
+  
+
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
@@ -121,27 +148,26 @@ void usercontrol(void) {
   // User control code here, inside the loop
   while (1) {
 
-    int left = Controller1.Axis2.position();
-    int right = Controller1.Axis3.position();
+    int left = Controller1.Axis3.position();
+    int right = Controller1.Axis2.position();
 
     drive(left, right, 10);
 
-    if(Controller1.ButtonR1.pressing()){
+    if(Controller1.ButtonL1.pressing()){
     armMove(50, 10);
-   }else if(Controller1.ButtonL1.pressing()){
+   }else if(Controller1.ButtonL2.pressing()){
     armMove(-50, 10);
     }
     else{
       armMotor.stop(brake);
     }
-    if(Controller1.ButtonL2.pressing()){
+    if(Controller1.ButtonR2.pressing()){
       claw.set(true); 
     }
-    else if(Controller1.ButtonR2.pressing()){
+    else if(Controller1.ButtonR1.pressing()){
       claw.set(false); 
     }
 
-    drive(left, right, 10);
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
