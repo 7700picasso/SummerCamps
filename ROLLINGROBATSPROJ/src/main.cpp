@@ -17,13 +17,11 @@ brain Brain;
 
 pneumatics claw = pneumatics(Brain.ThreeWirePort.A);
 
+inertial isensor = inertial(PORT5);
+
 motor leftMotor(PORT1, ratio18_1, false);
 motor rightMotor(PORT10,ratio18_1, true);
-<<<<<<< HEAD
-motor arm = motor(PORT2, ratio18_1, false);
-=======
 motor arm(PORT2, ratio18_1, false);
->>>>>>> 83df468303011140af6040080aebef524eb69d5d
 controller Controller1 = controller(primary);
 
 void drive(int lspeed, int rspeed, int wt){
@@ -80,16 +78,40 @@ void inchDrivePID(double inches, int maxSpeed, int minSpeed) {
     brakeMotor();
   }
 
+  void turnP(double targetDegrees, int maxSpeed, int minSpeed) {
+    isensor.setRotation(0, degrees);
+
+    double kP = 0.1;
+    double error = targetDegrees - isensor.rotation(degrees);
+
+    while (fabs(error) > 1.0) {
+      error = targetDegrees - isensor.rotation(degrees);
+      double speed = fabs(error) * kP;
+
+    if (speed > maxSpeed) {
+      speed = maxSpeed;
+    }
+
+    if (speed < minSpeed) {
+      speed = minSpeed;
+    }
+
+    if (error > 0) {
+      drive(speed, -speed, 10);
+    } else {
+      drive(-speed, speed, 10);
+    }
+    wait(10, msec);
+    }
+    brakeMotor();
+  }
+
 
 void pre_auton(){
 
-}
+  isensor.calibrate();
 
-void armMove(int speed, int waittime){
-  arm.spin(forward, speed, percent);
-  wait(waittime, msec);
 }
-
 
 
 /*---------------------------------------------------------------------------*/
@@ -104,14 +126,21 @@ void armMove(int speed, int waittime){
 
 void autonomous(void) {
 
-  
-  claw.set(true);
-  drive(50,50,150);
+  claw.open();
+  wait(500, msec);
   armMove(50,500);
-  drive(-50,50,700);
+  wait(500, msec);
+  drive(50,50,1200);
+  turnP(90,80,30);
+  wait(500, msec);
   arm.stop(brake);
-  drive(-50,-50,400);
-  armMove(-50,400);
+  armMove(-30,700);
+  wait(500, msec);
+  claw.close();
+  wait(500,msec);
+  drive(-50,-50,200);
+  wait(500, msec);
+  armMove(50,500);
   brakeMotor();
   // ..........................................................................
   // Insert autonomous user code here.
@@ -137,18 +166,6 @@ void usercontrol(void) {
     int right = Controller1.Axis2.position();
     
     drive(left, right, 10);
-
-    if(Controller1.ButtonL1.pressing()){
-      armMove(50, 10);
-    }
-    else if(Controller1.ButtonL2.pressing()){
-      armMove(-50, 10);
-
-    }
-
-    else{
-      arm.stop(brake);
-    }
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
