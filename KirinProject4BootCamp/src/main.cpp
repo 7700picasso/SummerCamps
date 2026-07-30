@@ -18,7 +18,7 @@ controller Controller1 = controller(primary);
 
 motor arm = motor(PORT8, ratio18_1, false);
 
-
+inertial isensor (PORT3); 
 // A global instance of competition
 competition Competition;
 
@@ -87,14 +87,52 @@ void inchDrive(double inches,int maxSpeed, int minSpeed) {
     
 
   }
-
+  brakeMotor();
 
 }
+
 void armMove(int speed, int waittime){
   arm.spin(forward, speed, percent);
   wait(waittime,msec);
 
 }
+
+
+
+void PTurn(double targetDegrees, int maxSpeed, int minSpeed) { 
+
+   isensor.setRotation(0, degrees); 
+    double kP = 0.1; 
+    double error = targetDegrees - isensor.rotation(degrees) ;
+
+
+    while (fabs(error) > 1.0) { 
+      error = targetDegrees - isensor.rotation(degrees);
+      double speed = fabs(error) * kP;
+
+      if(speed > maxSpeed){
+        speed = maxSpeed;
+      }
+
+      if(speed <  minSpeed){
+        speed = minSpeed;
+      }
+
+    if (error > 0 ){
+      drive(speed, -speed, 10);
+    }else{
+      drive(-speed, speed, 10);
+    }
+    wait(10, msec);
+    
+    }
+    brakeMotor(); 
+
+}
+
+
+
+
 
 void pre_auton(void) {
 
@@ -113,12 +151,13 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  drive(50, 50, 1000);
-  drive(50, -50, 675);
- 
 
 
-  brakeMotor();
+inchDrive(5, 75, 20); 
+PTurn(-90,70,20); 
+brakeMotor();
+
+  
 }
 
 /*---------------------------------------------------------------------------*/
