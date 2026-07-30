@@ -42,17 +42,21 @@ def inchDrive(inches):
     x = 0
     LF.set_position(0,TURNS)
     x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
-    while x < inches:
-        drive(30,30,10)
+    error = inches - x
+    kp = 7.5
+    while abs(error)>0.25:
+        error = inches - x
+        speed = error*kp
+        drive(speed,speed,10)
         x = pi * wheel_diameter * gear_ratio * LF.position(TURNS)
         brain.screen.print_at("inches = ",x,x=0,y=40)
     driveStop()
 
 def turnTo(angle):
     error = angle - gyro.rotation()
-    kp = 5
+    kp = 0.6
     timer = Timer()
-    while abs(error)>2 or timer.time(MSEC)>2000:
+    while abs(error)>2 and timer.time(MSEC)<2000:
         error = angle - gyro.rotation()
         if error>180:
             error = 360 -error
@@ -72,10 +76,18 @@ def autonomous():
     gyro.calibrate()
     while gyro.is_calibrating():
         wait(20, MSEC)
-    inchDrive(24)
-    turnTo(90)
-
-
+    inchDrive(52)
+    turnTo(-90)
+    inchDrive(72)
+    turnTo(-180)
+    inchDrive(48)
+    driveStop()
+    inchDrive(-48)
+    turnTo(-270)
+    inchDrive(72)
+    turnTo(-180)
+    inchDrive(52)
+    driveStop()
 
 
 

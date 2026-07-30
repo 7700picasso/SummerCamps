@@ -18,6 +18,7 @@ controller Controller1 = controller(primary);
 
 motor arm = motor(PORT8, ratio18_1, false);
 
+inertial isensor = inertial(PORT4);
 
 // A global instance of competition
 competition Competition;
@@ -54,7 +55,7 @@ void inchDrive(double inches,int maxSpeed, int minSpeed) {
   double pi = 3.14159;
   double gearRatio = 1.0 / 1.0;
 
-  double circumfernce = wheelDiameter;
+  double circumfernce = wheelDiameter * pi;
   double wheelRotations = inches / circumfernce;
   double motorRotations =  wheelRotations * gearRatio;
   double targetDegrees = motorRotations * 360;
@@ -65,7 +66,6 @@ void inchDrive(double inches,int maxSpeed, int minSpeed) {
 
   while(fabs(error) > 5 ) {
     error = targetDegrees - leftMotor.position(degrees);
-
 
     double speed = fabs(error) * kP;
 
@@ -90,6 +90,36 @@ void inchDrive(double inches,int maxSpeed, int minSpeed) {
 
 
 }
+
+void turnP(double targetDegrees, int maxSpeed,int minSpeed){
+  isensor.setRotation(0, degrees);
+
+  double kP = 0.1;
+  double error = targetDegrees - isensor.rotation(degrees);
+  
+  while (fabs(error) > 1.0){
+    error = targetDegrees  - isensor.rotation(degrees);
+    double speed = fabs(error) * kP;
+
+    if(speed > maxSpeed){
+      speed = maxSpeed;
+    }
+
+    if (speed < minSpeed){
+      speed = minSpeed;
+    }
+
+    if (error > 0){
+      drive(speed, - speed, 10);
+    } else {
+      drive(-speed, speed, 10 );
+    }
+  wait(10, msec);
+    brakeMotor();
+  }
+  
+}
+
 void armMove(int speed, int waittime){
   arm.spin(forward, speed, percent);
   wait(waittime,msec);
@@ -113,8 +143,7 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  drive(50, 50, 1000);
-  drive(50, -50, 675);
+   
  
 
 
@@ -146,17 +175,17 @@ void usercontrol(void) {
 
     if (Controller1.ButtonL1.pressing()){
       Brain.Screen.print("moving arm");
-      armMove(-50, 10);
+      armMove(-20, 10);
     }
     else if (Controller1.ButtonL2.pressing()){
-      armMove (50,10);
+      armMove (20,10);
     }
     else{
       arm.stop(brake);
     }
 
     if (Controller1.ButtonR1.pressing()){
-      claw.close();
+      claw.open();
     }
 
     else if(Controller1.ButtonR2.pressing()){
@@ -188,6 +217,8 @@ int main() {
 
   // Run the pre-autonomous function.
   pre_auton();
+
+isensor.calibrate();
 
   // Prevent main from exiting with an infinite loop.
   while (true) {
